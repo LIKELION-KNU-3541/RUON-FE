@@ -1,5 +1,6 @@
 import React from 'react';
 import { Image, Text, View } from 'react-native';
+import NoticeIcon from '../../../assets/icons/notice-icon.svg';
 
 const GUIDE_ITEMS = [
   '본 서비스는 제품의 안전성이나 사용 가능 여부를 직접 판단하거나 보장하지 않습니다.',
@@ -11,13 +12,9 @@ const GUIDE_ITEMS = [
 export default function InfoBox() {
   return (
     <View className="mt-[30px] overflow-hidden rounded-[12px] border border-[#A9652F] bg-[#FDF9F5]">
-      <View className="px-[18px] pb-[12px] pt-[14px]">
+      <View className="px-[18px] pb-[12px] pt-[13px]">
         <View className="mb-[14px] flex-row items-center">
-          <Image
-            source={require('../../../assets/images/warning.png')}
-            className="h-[19px] w-[19px]"
-            resizeMode="contain"
-          />
+          <NoticeIcon width={17} height={17} />
           <Text className="ml-[10px] font-pretendard-medium text-[10px] text-[#A9652F]">
             정보 이용 안내
           </Text>
