@@ -34,7 +34,7 @@ export default function WelcomeScreen({ onNext }) {
         className="flex-1 relative"
         resizeMode="cover"
       >
-        {/* 2. Decorative Circle Line Art (PNG @3x) ???�단??중단??주석 처리 */}
+        {/* 2. Decorative Circle Line Art (PNG @3x) 다른 페이지와 같은 이유로 라인아트 비활성화 */}
         {/*
         <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 1 }}>
           <Image source={require('../../../../assets/images/3p_top_circle.png')} style={{ position: 'absolute', right: 0, top: 0, width: scaleW(168), height: scaleW(254) }} resizeMode="stretch" />
@@ -67,7 +67,7 @@ export default function WelcomeScreen({ onNext }) {
           />
         </View>
 
-        {/* 그림????Figma: left:54, top:593.7, width:252.86, height:27.3 */}
+        {/* 3D 로고 밑 그림자 효과 Figma: left:54, top:593.7, width:252.86, height:27.3 */}
         <Image
           source={require('../../../../assets/images/3p_sdw.png')}
           style={{
@@ -81,7 +81,7 @@ export default function WelcomeScreen({ onNext }) {
           resizeMode="stretch"
         />
 
-        {/* 3p_btm_circle ??3D 로고(zIndex:10) ?�에 ?�시?�도�?zIndex:20?�로 최전�?배치
+        {/* 3p_btm_circle 3D 로고(zIndex:10) 위에 배치 zIndex:20로 최전방 배치
             Figma Ellipse 1131: 267×267, left:-185, top:218 */}
         <Image
           source={require('../../../../assets/images/3p_btm_circle.png')}

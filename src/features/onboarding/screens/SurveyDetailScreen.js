@@ -13,8 +13,8 @@ import { StatusBar } from 'expo-status-bar';
 import BottomButton from '../../../shared/components/BottomButton';
 
 // PNG line art images are exported at @3x resolution
-// 4p5p6p_top_circle.png: 612x762 ??204x254
-// 4p5p6p_btm_circle.png: 426x855 ??142x285
+// 4p5p6p_top_circle.png: 612x762, 204x254
+// 4p5p6p_btm_circle.png: 426x855, 142x285
 
 const FIGMA_WIDTH = 360;
 const FIGMA_HEIGHT = 800;
@@ -57,7 +57,7 @@ export default function SurveyDetailScreen({ onNext, surveyData, updateSurveyDat
         className="flex-1 relative"
         resizeMode="cover"
       >
-        {/* 2. Circle Line Art ??4p5p6p_bg.png???�함?�어 ?�어 비활?�화
+        {/* 2. Circle Line Art 다른 페이지와 같은 이유로 라인아트 비활성화
         <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 1 }}>
           <Image source={require('../../../../assets/images/4p5p6p_top_circle.png')} style={{ position: 'absolute', right: 0, top: 0, width: scaleW(204), height: scaleW(254) }} resizeMode="stretch" />
           <Image source={require('../../../../assets/images/4p5p6p_btm_circle.png')} style={{ position: 'absolute', left: 0, top: scaleH(440), width: scaleW(142), height: scaleW(285) }} resizeMode="stretch" />

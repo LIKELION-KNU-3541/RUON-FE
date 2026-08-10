@@ -13,8 +13,8 @@ import BottomButton from '../../../shared/components/BottomButton';
 import { checkSvgXml } from '../../../../assets/images/check_svg';
 
 // PNG line art images are exported at @3x resolution
-// 4p5p6p_top_circle.png: 612x762 ??204x254
-// 4p5p6p_btm_circle.png: 426x855 ??142x285
+// 4p5p6p_top_circle.png: 612x762, 204x254
+// 4p5p6p_btm_circle.png: 426x855, 142x285
 
 const FIGMA_WIDTH = 360;
 const FIGMA_HEIGHT = 800;
@@ -39,7 +39,7 @@ export default function SurveySummaryScreen({ onPrev, surveyData }) {
         className="flex-1 relative"
         resizeMode="cover"
       >
-        {/* 2. Circle Line Art ??4p5p6p_bg.png???�함?�어 ?�어 비활?�화
+        {/* 2. Circle Line Art 4p5p6p_bg.png 다른페이지와 같은 이유로 비활성화
         <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 1 }}>
           <Image source={require('../../../../assets/images/4p5p6p_top_circle.png')} style={{ position: 'absolute', right: 0, top: 0, width: scaleW(204), height: scaleW(254) }} resizeMode="stretch" />
           <Image source={require('../../../../assets/images/4p5p6p_btm_circle.png')} style={{ position: 'absolute', left: 0, top: scaleH(440), width: scaleW(142), height: scaleW(285) }} resizeMode="stretch" />
@@ -71,19 +71,19 @@ export default function SurveySummaryScreen({ onPrev, surveyData }) {
           }}
           className="bg-white/10 rounded-[20px] border border-white/20 px-5 py-2 z-10"
         >
-          {/* Row 1: ?�재 ?�태 */}
+          {/* Row 1: 현재 상태 */}
           <View style={{ borderBottomWidth: 0.8, borderBottomColor: 'rgba(255, 249, 241, 0.2)' }} className="flex-1 flex-row justify-between items-center px-3">
             <Text className="text-[#FFF9F1] text-[14px] font-semibold">현재 상태</Text>
             <Text className="text-[#FFF9F1] text-[14px] font-normal">{condition}</Text>
           </View>
 
-          {/* Row 2: ?�신 주차 */}
+          {/* Row 2: 임신 주차 */}
           <View style={{ borderBottomWidth: 0.8, borderBottomColor: 'rgba(255, 249, 241, 0.2)' }} className="flex-1 flex-row justify-between items-center px-3">
             <Text className="text-[#FFF9F1] text-[14px] font-semibold">임신 주차</Text>
             <Text className="text-[#FFF9F1] text-[14px] font-normal">{weeks}</Text>
           </View>
 
-          {/* Row 3: ?��? 고�? */}
+          {/* Row 3: 피부 고민 */}
           <View style={{ borderBottomWidth: 0.8, borderBottomColor: 'rgba(255, 249, 241, 0.2)' }} className="flex-1 flex-row justify-between items-center px-3">
             <Text className="text-[#FFF9F1] text-[14px] font-semibold">피부 고민</Text>
             <Text className="text-[#FFF9F1] text-[14px] font-normal max-w-[180px] text-right" numberOfLines={1}>
@@ -91,7 +91,7 @@ export default function SurveySummaryScreen({ onPrev, surveyData }) {
             </Text>
           </View>
 
-          {/* Row 4: ?��? ?�??*/}
+          {/* Row 4: 피부 타입*/}
           <View className="flex-1 flex-row justify-between items-center px-3">
             <Text className="text-[#FFF9F1] text-[14px] font-semibold">피부 타입</Text>
             <Text className="text-[#FFF9F1] text-[14px] font-normal">{skinType}</Text>
