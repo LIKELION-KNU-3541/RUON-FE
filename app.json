@@ -4,13 +4,13 @@
     "slug": "RUON",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/1p_bg.png",
+    "icon": "./assets/images/app_logo.jpg",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
     },
     "web": {
-      "favicon": "./assets/images/1p_bg.png"
+      "favicon": "./assets/images/app_logo.jpg"
     }
   }
 }
