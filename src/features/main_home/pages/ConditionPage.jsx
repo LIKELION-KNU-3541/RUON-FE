@@ -85,20 +85,12 @@ export default function ConditionPage({ initialConditions = [], onBack, onApply 
             {TIME_OPTIONS.map((option) => {
               const selected = time === option;
               return (
-                <TouchableOpacity
+                <ConditionButton
                   key={option}
-                  className="h-[37px] items-center justify-center rounded-[16px] bg-[#FFF8F2] px-[10px]"
-                  style={{
-                    borderColor: selected ? '#FFFFFF' : 'rgba(255,255,255,0.55)',
-                    backgroundColor: selected ? '#FFF9F2' : 'rgba(255,255,255,0.08)',
-                  }}
-                  activeOpacity={0.75}
+                  label={option}
+                  selected={selected}
                   onPress={() => setTime(option)}
-                >
-                  <Text className="font-pretendard-semibold" style={{ color: selected ? '#915626' : '#FFF9F1', fontSize: moderateScale(14) }}>
-                    {option}
-                  </Text>
-                </TouchableOpacity>
+                />
               );
             })}
           </View>

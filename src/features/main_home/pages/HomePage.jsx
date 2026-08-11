@@ -22,6 +22,7 @@ export default function HomePage({ conditions = [], onOpenCondition }) {
 
         <ScrollView
           className="flex-1"
+          style={{ marginBottom: scale(99) }}
           contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 45, paddingBottom: 130 }}
           showsVerticalScrollIndicator={false}
         >
