@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 // TODO: 서버 연동 시 DUMMY_PRODUCTS import 삭제 및 API 응답 데이터 사용
 import { DUMMY_PRODUCTS } from '../data/dummyData';
 import ResearchAgainModal from '../components/ResearchAgainModal';
+import ResultIcon from '../../../../assets/icons/result_icon.svg';
 
 const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
 
@@ -40,7 +41,7 @@ export default function ProductConfirmScreen({
     <ImageBackground source={backgroundSource} resizeMode="cover" style={styles.root}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
-          <Text style={styles.sparkle}>✦</Text>
+          <ResultIcon width={24} height={24} />
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
             <Text style={styles.closeBtnText}>✕</Text>
           </TouchableOpacity>
@@ -101,10 +102,6 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginTop: 40,
-  },
-  sparkle: {
-    fontSize: 20,
-    color: '#945C2D',
   },
   closeBtn: {
     position: 'absolute',

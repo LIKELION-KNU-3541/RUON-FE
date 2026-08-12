@@ -80,49 +80,49 @@ export default function CameraScreen({ onBack, onPhotoTaken }) {
   return (
     <View style={styles.root}>
       {/* 카메라 뷰 */}
-      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
-        {/* 상단 닫기 버튼 */}
-        <TouchableOpacity style={styles.closeBtn} onPress={onBack}>
-          <Text style={styles.closeBtnText}>✕</Text>
+      <CameraView style={styles.camera} facing={facing} ref={cameraRef} />
+
+      {/* 상단 닫기 버튼 */}
+      <TouchableOpacity style={styles.closeBtn} onPress={onBack}>
+        <Text style={styles.closeBtnText}>✕</Text>
+      </TouchableOpacity>
+
+      {/* 가이드 프레임 */}
+      <View style={styles.frameGuide} pointerEvents="none">
+        <Text style={styles.frameGuideText}>성분표가 잘 보이도록 맞춰주세요</Text>
+      </View>
+
+      {/* 하단 컨트롤 */}
+      <View style={styles.bottomControls}>
+        {/* 갤러리 버튼 */}
+        <TouchableOpacity style={styles.sideBtn} onPress={handleGalleryPick}>
+          <Text style={styles.sideBtnIcon}>🖼️</Text>
+          <Text style={styles.sideBtnLabel}>갤러리</Text>
         </TouchableOpacity>
 
-        {/* 가이드 프레임 */}
-        <View style={styles.frameGuide}>
-          <Text style={styles.frameGuideText}>성분표가 잘 보이도록 맞춰주세요</Text>
-        </View>
+        {/* 셔터 버튼 */}
+        <TouchableOpacity
+          style={[styles.shutter, isCapturing && styles.shutterCapturing]}
+          onPress={handleCapture}
+          activeOpacity={0.8}
+          disabled={isCapturing}
+        >
+          {isCapturing ? (
+            <ActivityIndicator color="#945C2D" size="large" />
+          ) : (
+            <View style={styles.shutterInner} />
+          )}
+        </TouchableOpacity>
 
-        {/* 하단 컨트롤 */}
-        <View style={styles.bottomControls}>
-          {/* 갤러리 버튼 */}
-          <TouchableOpacity style={styles.sideBtn} onPress={handleGalleryPick}>
-            <Text style={styles.sideBtnIcon}>🖼️</Text>
-            <Text style={styles.sideBtnLabel}>갤러리</Text>
-          </TouchableOpacity>
-
-          {/* 셔터 버튼 */}
-          <TouchableOpacity
-            style={[styles.shutter, isCapturing && styles.shutterCapturing]}
-            onPress={handleCapture}
-            activeOpacity={0.8}
-            disabled={isCapturing}
-          >
-            {isCapturing ? (
-              <ActivityIndicator color="#945C2D" size="large" />
-            ) : (
-              <View style={styles.shutterInner} />
-            )}
-          </TouchableOpacity>
-
-          {/* 전/후면 전환 */}
-          <TouchableOpacity
-            style={styles.sideBtn}
-            onPress={() => setFacing((f) => (f === 'back' ? 'front' : 'back'))}
-          >
-            <Text style={styles.sideBtnIcon}>🔄</Text>
-            <Text style={styles.sideBtnLabel}>전환</Text>
-          </TouchableOpacity>
-        </View>
-      </CameraView>
+        {/* 전/후면 전환 */}
+        <TouchableOpacity
+          style={styles.sideBtn}
+          onPress={() => setFacing((f) => (f === 'back' ? 'front' : 'back'))}
+        >
+          <Text style={styles.sideBtnIcon}>🔄</Text>
+          <Text style={styles.sideBtnLabel}>전환</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

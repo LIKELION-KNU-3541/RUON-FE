@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import UploadIcon from '../../../../assets/icons/upload_icon.svg';
 
 /**
  * 파일 업로드 화면
@@ -61,9 +62,7 @@ export default function FileUploadScreen({ onBack, onNext }) {
         </View>
       ) : (
         <TouchableOpacity style={styles.dropZone} activeOpacity={0.85} onPress={handlePickFile}>
-          <View style={styles.uploadIconWrapper}>
-            <Text style={styles.uploadIcon}>📄</Text>
-          </View>
+          <UploadIcon width={79} height={81} style={styles.uploadIcon} />
           <Text style={styles.dropTitle}>파일을 업로드해 주세요</Text>
           <Text style={styles.dropSub}>JPG, PNG 파일만 가능</Text>
           <View style={styles.selectBtn}>
@@ -119,61 +118,54 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 20,
+    fontSize: 18,
     lineHeight: 28,
     color: '#945C2D',
     textAlign: 'center',
     marginTop: 24,
   },
   subtitle: {
-    fontFamily: 'Pretendard-Regular',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 13,
-    lineHeight: 19,
+    lineHeight: 20,
     color: '#BE9D82',
     textAlign: 'center',
-    marginTop: 12,
+    marginTop: 10,
     marginBottom: 32,
   },
   dropZone: {
     flex: 1,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: '#D9C6B4',
-    borderRadius: 20,
+    borderColor: '#BE9D82',
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 40,
     marginBottom: 24,
   },
-  uploadIconWrapper: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    backgroundColor: '#F0E4D6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
   uploadIcon: {
-    fontSize: 28,
+    marginBottom: 10,
   },
   dropTitle: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 15,
+    fontSize: 14,
+    lineHeight: 17,
     color: '#945C2D',
-    marginBottom: 4,
+    marginBottom: 10,
   },
   dropSub: {
     fontFamily: 'Pretendard-Regular',
     fontSize: 12,
-    color: '#BE9D82',
+    lineHeight: 14,
+    color: '#945C2D',
     marginBottom: 20,
   },
   selectBtn: {
     backgroundColor: '#945C2D',
     borderRadius: 16,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   selectBtnText: {
     fontFamily: 'Pretendard-SemiBold',

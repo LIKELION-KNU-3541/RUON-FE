@@ -1,28 +1,68 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ImageBackground, Image } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet, ImageBackground, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 // TODO: 서버 연동 시 DUMMY_PRODUCTS import 삭제 및 API(OCR) 응답 데이터 사용
 import { DUMMY_PRODUCTS } from '../data/dummyData';
+import ResultIcon from '../../../../assets/icons/result_icon.svg';
+import PencilIcon from '../../../../assets/icons/update_pencil_icon.svg';
 
 const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
 
-function EditableField({ label, value, expandable, expanded, onToggleExpand }) {
+/**
+ * 인식 결과 항목 한 줄 (라벨 + 값 + 연필 버튼)
+ * 연필을 누르면 값을 직접 수정할 수 있는 입력 모드로 전환됨
+ */
+function EditableField({
+  label,
+  value,
+  onChangeValue,
+  expandable,
+  expanded,
+  onToggleExpand,
+  isEditing,
+  onStartEdit,
+  onFinishEdit,
+}) {
   return (
-    <View style={styles.fieldCard}>
-      <View style={styles.fieldTop}>
+    <View style={styles.fieldRow}>
+      <View style={styles.fieldTextCol}>
         <View style={styles.fieldLabelRow}>
           <Text style={styles.fieldLabel}>{label}</Text>
-          {expandable && (
-            <TouchableOpacity onPress={onToggleExpand} hitSlop={8} style={styles.chevronBtn}>
+          {expandable && !isEditing && (
+            <TouchableOpacity onPress={onToggleExpand} hitSlop={8}>
               <Text style={styles.chevron}>{expanded ? '⌃' : '⌄'}</Text>
             </TouchableOpacity>
           )}
         </View>
-        <Text style={styles.editIcon}>✎</Text>
+
+        {isEditing ? (
+          <TextInput
+            style={styles.fieldInput}
+            value={value}
+            onChangeText={onChangeValue}
+            autoFocus
+            multiline={expandable}
+            onSubmitEditing={!expandable ? onFinishEdit : undefined}
+            onBlur={onFinishEdit}
+            returnKeyType="done"
+          />
+        ) : (
+          <Text style={styles.fieldValue} numberOfLines={expandable && !expanded ? 1 : undefined}>
+            {value}
+          </Text>
+        )}
       </View>
-      <Text style={styles.fieldValue} numberOfLines={expandable && !expanded ? 1 : undefined}>
-        {value}
-      </Text>
+
+      <TouchableOpacity
+        hitSlop={8}
+        onPress={isEditing ? onFinishEdit : onStartEdit}
+      >
+        {isEditing ? (
+          <Text style={styles.editIcon}>✓</Text>
+        ) : (
+          <PencilIcon width={18} height={18} />
+        )}
+      </TouchableOpacity>
     </View>
   );
 }
@@ -40,12 +80,46 @@ export default function OcrResultScreen({ product: productProp, onClose, onBack,
   const product = productProp ?? DUMMY_PRODUCTS[0];
   const { basicInfo } = product;
   const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
+  const [editingField, setEditingField] = useState(null);
+  const [fields, setFields] = useState({
+    productName: basicInfo.productName,
+    brand: basicInfo.brand,
+    volume: basicInfo.volume,
+    ingredients: basicInfo.fullIngredients ?? basicInfo.mainIngredients,
+  });
+
+  const updateField = (key, text) => {
+    setFields((prev) => ({ ...prev, [key]: text }));
+  };
+
+  const startEdit = (key) => {
+    if (key === 'ingredients') setIngredientsExpanded(true);
+    setEditingField(key);
+  };
+
+  const finishEdit = () => setEditingField(null);
+
+  const handleNext = () => {
+    onNext?.({
+      ...product,
+      name: fields.productName,
+      brand: fields.brand,
+      volume: fields.volume,
+      basicInfo: {
+        ...basicInfo,
+        productName: fields.productName,
+        brand: fields.brand,
+        volume: fields.volume,
+        fullIngredients: fields.ingredients,
+      },
+    });
+  };
 
   return (
     <ImageBackground source={backgroundSource} resizeMode="cover" style={styles.root}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
-          <Text style={styles.sparkle}>✦</Text>
+          <ResultIcon width={24} height={24} />
           <TouchableOpacity style={styles.closeBtn} onPress={onClose}>
             <Text style={styles.closeBtnText}>✕</Text>
           </TouchableOpacity>
@@ -61,31 +135,60 @@ export default function OcrResultScreen({ product: productProp, onClose, onBack,
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.imageCard}>
-            {product.image ? (
-              <Image source={{ uri: product.image }} style={styles.image} resizeMode="cover" />
-            ) : (
-              <Text style={styles.imagePlaceholder}>🧴</Text>
-            )}
-          </View>
+          <View style={styles.card}>
+            <View style={styles.imageCard}>
+              {product.image ? (
+                <Image source={{ uri: product.image }} style={styles.image} resizeMode="cover" />
+              ) : (
+                <Text style={styles.imagePlaceholder}>🧴</Text>
+              )}
+            </View>
 
-          <EditableField label="제품명" value={basicInfo.productName} />
-          <EditableField label="브랜드" value={basicInfo.brand} />
-          <EditableField label="용량" value={basicInfo.volume} />
-          <EditableField
-            label="전성분"
-            value={basicInfo.fullIngredients ?? basicInfo.mainIngredients}
-            expandable
-            expanded={ingredientsExpanded}
-            onToggleExpand={() => setIngredientsExpanded((v) => !v)}
-          />
+            <View style={styles.fieldsColumn}>
+              <EditableField
+                label="제품명"
+                value={fields.productName}
+                onChangeValue={(text) => updateField('productName', text)}
+                isEditing={editingField === 'productName'}
+                onStartEdit={() => startEdit('productName')}
+                onFinishEdit={finishEdit}
+              />
+              <EditableField
+                label="브랜드"
+                value={fields.brand}
+                onChangeValue={(text) => updateField('brand', text)}
+                isEditing={editingField === 'brand'}
+                onStartEdit={() => startEdit('brand')}
+                onFinishEdit={finishEdit}
+              />
+              <EditableField
+                label="용량"
+                value={fields.volume}
+                onChangeValue={(text) => updateField('volume', text)}
+                isEditing={editingField === 'volume'}
+                onStartEdit={() => startEdit('volume')}
+                onFinishEdit={finishEdit}
+              />
+              <EditableField
+                label="전성분"
+                value={fields.ingredients}
+                onChangeValue={(text) => updateField('ingredients', text)}
+                expandable
+                expanded={ingredientsExpanded}
+                onToggleExpand={() => setIngredientsExpanded((v) => !v)}
+                isEditing={editingField === 'ingredients'}
+                onStartEdit={() => startEdit('ingredients')}
+                onFinishEdit={finishEdit}
+              />
+            </View>
+          </View>
         </ScrollView>
 
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.prevBtn} activeOpacity={0.8} onPress={onBack}>
             <Text style={styles.prevBtnText}>이전</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.nextBtn} activeOpacity={0.8} onPress={() => onNext?.(product)}>
+          <TouchableOpacity style={styles.nextBtn} activeOpacity={0.8} onPress={handleNext}>
             <Text style={styles.nextBtnText}>다음</Text>
           </TouchableOpacity>
         </View>
@@ -105,10 +208,6 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginTop: 24,
-  },
-  sparkle: {
-    fontSize: 20,
-    color: '#945C2D',
   },
   closeBtn: {
     position: 'absolute',
@@ -133,12 +232,12 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 13,
-    lineHeight: 19,
+    fontSize: 14,
+    lineHeight: 20,
     color: '#BE9D82',
     textAlign: 'center',
-    marginTop: 8,
-    marginBottom: 24,
+    marginTop: 15,
+    marginBottom: 30,
   },
   scroll: {
     flex: 1,
@@ -146,72 +245,97 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 16,
   },
+  card: {
+    backgroundColor: '#FBF9F7',
+    borderWidth: 0.5,
+    borderColor: '#BE9D82',
+    borderRadius: 16,
+    paddingVertical: 24,
+    paddingHorizontal: 17,
+    alignItems: 'center',
+  },
   imageCard: {
-    width: 120,
-    height: 150,
-    alignSelf: 'center',
+    width: 95,
+    height: 119,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    marginBottom: 20,
+    marginBottom: 30,
   },
   image: {
     width: '100%',
     height: '100%',
   },
   imagePlaceholder: {
-    fontSize: 44,
+    fontSize: 40,
   },
-  fieldCard: {
-    backgroundColor: 'rgba(255,255,255,0.55)',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
+  fieldsColumn: {
+    width: '100%',
+    gap: 10,
   },
-  fieldTop: {
+  fieldRow: {
+    width: '100%',
+    minHeight: 60,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 6,
+    backgroundColor: '#FFF9F1',
+    borderWidth: 0.5,
+    borderColor: '#BE9D82',
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  fieldTextCol: {
+    flex: 1,
   },
   fieldLabelRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
+    marginBottom: 5,
   },
   fieldLabel: {
-    fontFamily: 'Pretendard-Regular',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 12,
+    lineHeight: 14,
     color: '#BE9D82',
-  },
-  chevronBtn: {
-    paddingHorizontal: 2,
   },
   chevron: {
     fontSize: 13,
     color: '#BE9D82',
   },
-  editIcon: {
-    fontSize: 13,
-    color: '#BE9D82',
-  },
   fieldValue: {
-    fontFamily: 'Pretendard-SemiBold',
-    fontSize: 15,
-    lineHeight: 22,
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 16,
+    lineHeight: 19,
     color: '#945C2D',
+  },
+  fieldInput: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 16,
+    lineHeight: 19,
+    color: '#945C2D',
+    padding: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: '#945C2D',
+  },
+  editIcon: {
+    fontSize: 18,
+    color: '#945C2D',
+    marginLeft: 12,
   },
   buttonRow: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 16,
     marginTop: 12,
     marginBottom: 24,
   },
   prevBtn: {
     flex: 1,
-    height: 58,
+    height: 61,
     borderRadius: 20,
     backgroundColor: '#F6E9D7',
     alignItems: 'center',
@@ -224,7 +348,7 @@ const styles = StyleSheet.create({
   },
   nextBtn: {
     flex: 1,
-    height: 58,
+    height: 61,
     borderRadius: 20,
     backgroundColor: '#945C2D',
     alignItems: 'center',

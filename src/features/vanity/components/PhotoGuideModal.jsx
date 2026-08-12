@@ -15,17 +15,17 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const GUIDE_STEPS = [
   {
     id: 1,
-    emoji: '📦',
+    image: require('../../../../assets/images/guide1.png'),
     title: '성분표를 선명하게',
   },
   {
     id: 2,
-    emoji: '📸',
+    image: require('../../../../assets/images/guide2.png'),
     title: '밝은 곳에서',
   },
   {
     id: 3,
-    emoji: '✅',
+    image: require('../../../../assets/images/guide3.png'),
     title: '한 제품씩',
   },
 ];
@@ -59,11 +59,11 @@ export default function PhotoGuideModal({ visible, onClose, onCapture }) {
         <View style={styles.steps}>
           {GUIDE_STEPS.map((step, index) => (
             <View key={step.id} style={styles.stepRow}>
-              {/* 이미지 영역 (추후 실제 가이드 이미지로 교체) */}
-              <View style={styles.stepImage}>
-                <Text style={styles.stepEmoji}>{step.emoji}</Text>
-              </View>
+              <Image source={step.image} style={styles.stepImage} resizeMode="cover" />
               <View style={styles.stepInfo}>
+                <View style={styles.stepBadge}>
+                  <Text style={styles.stepBadgeText}>{String(index + 1).padStart(2, '0')}</Text>
+                </View>
                 <Text style={styles.stepTitle}>{step.title}</Text>
               </View>
             </View>
@@ -129,22 +129,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FDF8F4',
     borderRadius: 14,
-    padding: 14,
+    height: 78,
+    overflow: 'hidden',
   },
   stepImage: {
-    width: 56,
-    height: 56,
-    borderRadius: 10,
+    width: 110,
+    height: '100%',
     backgroundColor: '#F0E4D6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 14,
-  },
-  stepEmoji: {
-    fontSize: 26,
   },
   stepInfo: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  stepBadge: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: '#F3E4D4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepBadgeText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 10,
+    color: '#BF9E7F',
   },
   stepTitle: {
     fontFamily: 'Pretendard-Medium',

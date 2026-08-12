@@ -34,6 +34,7 @@ const ITEMS = [
   {
     icon: VanityIcon,
     label: '화장대',
+    fillOnActive: true,
   },
   {
     icon: MyPageIcon,

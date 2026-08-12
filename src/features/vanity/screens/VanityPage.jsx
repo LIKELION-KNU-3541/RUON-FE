@@ -14,6 +14,13 @@ import PhotoGuideModal from '../components/PhotoGuideModal';
 import BottomNavigation from '../../../shared/components/BottomNavigation';
 import InfoBox from '../../../shared/components/InfoBox';
 import { DUMMY_PRODUCTS } from '../data/dummyData';
+import CameraIcon from '../../../../assets/icons/vanityPage_camera.svg';
+import UploadIcon from '../../../../assets/icons/vanityPage_upload.svg';
+import SummaryIcon1 from '../../../../assets/icons/vanityPage_icon1.svg';
+import SummaryIcon2 from '../../../../assets/icons/vanityPage_icon2.svg';
+import SummaryIcon3 from '../../../../assets/icons/vanityPage_icon3.svg';
+import SummaryIcon4 from '../../../../assets/icons/vanityPage_icon4.svg';
+import TrashIcon from '../../../../assets/icons/trash_icon.svg';
 
 const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
 
@@ -41,17 +48,17 @@ export default function VanityPage({
     onNavigateCamera?.();
   };
 
-  const getSafetyStyle = (level) => {
+  const getSafetyIcon = (level) => {
     switch (level) {
       case 'safe':
-        return { bg: '#E0FFD4', icon: '✔️' };
+        return SummaryIcon1;
       case 'caution':
-        return { bg: '#FFE5DB', icon: '🛑' };
+        return SummaryIcon2;
       case 'selective':
-        return { bg: '#FFF7D1', icon: '🌙' };
+        return SummaryIcon3;
       case 'danger':
       default:
-        return { bg: '#FFE6FF', icon: '👤' };
+        return SummaryIcon4;
     }
   };
 
@@ -87,9 +94,7 @@ export default function VanityPage({
               activeOpacity={0.8}
               onPress={() => setShowPhotoGuide(true)}
             >
-              <View style={styles.ctaIconWrapper}>
-                <Text style={{ fontSize: 24 }}>📷</Text>
-              </View>
+              <CameraIcon width={28} height={28} style={styles.ctaIcon} />
               <Text style={styles.ctaBtnTitle}>사진 촬영</Text>
               <Text style={styles.ctaBtnDesc}>제품 사진으로{'\n'}분석해요</Text>
             </TouchableOpacity>
@@ -99,9 +104,7 @@ export default function VanityPage({
               activeOpacity={0.8}
               onPress={() => onNavigateFileUpload?.()}
             >
-              <View style={styles.ctaIconWrapper}>
-                <Text style={{ fontSize: 24 }}>📁</Text>
-              </View>
+              <UploadIcon width={28} height={28} style={styles.ctaIcon} />
               <Text style={styles.ctaBtnTitle}>파일 업로드</Text>
               <Text style={styles.ctaBtnDesc}>사진 파일로{'\n'}분석해요</Text>
             </TouchableOpacity>
@@ -113,36 +116,28 @@ export default function VanityPage({
             <View style={styles.summaryRow}>
               {/* 사용 유지 */}
               <View style={styles.summaryCard}>
-                <View style={[styles.summaryIconBg, { backgroundColor: '#E0FFD4' }]}>
-                  <Text style={{ fontSize: 12 }}>✔️</Text>
-                </View>
+                <SummaryIcon1 width={30} height={30} style={styles.summaryIcon} />
                 <Text style={styles.summaryLabel}>사용 유지</Text>
                 <Text style={[styles.summaryCount, { color: '#6ECF86' }]}>08</Text>
               </View>
 
               {/* 잠시 보류 */}
               <View style={styles.summaryCard}>
-                <View style={[styles.summaryIconBg, { backgroundColor: '#FFE5DB' }]}>
-                  <Text style={{ fontSize: 12 }}>🛑</Text>
-                </View>
+                <SummaryIcon2 width={30} height={30} style={styles.summaryIcon} />
                 <Text style={styles.summaryLabel}>잠시 보류</Text>
                 <Text style={[styles.summaryCount, { color: '#FF907F' }]}>04</Text>
               </View>
 
               {/* 선택 사용 */}
               <View style={styles.summaryCard}>
-                <View style={[styles.summaryIconBg, { backgroundColor: '#FFF7D1' }]}>
-                  <Text style={{ fontSize: 12 }}>🌙</Text>
-                </View>
+                <SummaryIcon3 width={30} height={30} style={styles.summaryIcon} />
                 <Text style={styles.summaryLabel}>선택 사용</Text>
                 <Text style={[styles.summaryCount, { color: '#F7D76D' }]}>03</Text>
               </View>
 
               {/* 추가 확인 */}
               <View style={styles.summaryCard}>
-                <View style={[styles.summaryIconBg, { backgroundColor: '#FFE6FF' }]}>
-                  <Text style={{ fontSize: 12 }}>👤</Text>
-                </View>
+                <SummaryIcon4 width={30} height={30} style={styles.summaryIcon} />
                 <Text style={styles.summaryLabel}>추가 확인</Text>
                 <Text style={[styles.summaryCount, { color: '#A567B1' }]}>02</Text>
               </View>
@@ -151,7 +146,7 @@ export default function VanityPage({
 
           <View style={styles.routineSection}>
             <View style={styles.tagsRow}>
-              <View style={{ flexDirection: 'row', gap: 7 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 {FILTERS.map((filter) => {
                   const active = activeFilter === filter.key;
                   return (
@@ -169,8 +164,8 @@ export default function VanityPage({
                 })}
               </View>
 
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-end', marginTop: 14 }}>
-                <Text style={{ color: '#E78483', fontSize: 12, marginRight: 4 }}>🗑️</Text>
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-end', marginTop: 20 }}>
+                <TrashIcon width={11} height={12} style={{ marginRight: 4 }} />
                 <Text style={{ color: '#E78483', fontSize: 11, fontFamily: 'Pretendard-Regular' }}>삭제</Text>
               </TouchableOpacity>
             </View>
@@ -179,7 +174,7 @@ export default function VanityPage({
             <View style={styles.productList}>
 
               {filteredProducts.map((product) => {
-                const { bg, icon } = getSafetyStyle(product.safetyLevel);
+                const SafetyIcon = getSafetyIcon(product.safetyLevel);
 
                 return (
                   <TouchableOpacity
@@ -195,8 +190,9 @@ export default function VanityPage({
                       <Text style={styles.productTitle} numberOfLines={1}>{product.name}</Text>
                       <Text style={styles.productDesc} numberOfLines={2}>{product.usageNote}</Text>
                     </View>
-                    <View style={[styles.statusIconBg, { backgroundColor: bg }]}>
-                      <Text style={{ fontSize: 14 }}>{icon}</Text>
+                    <View style={styles.statusIconRow}>
+                      <SafetyIcon width={30} height={30} />
+                      <Text style={styles.statusChevron}>&gt;</Text>
                     </View>
                   </TouchableOpacity>
                 );
@@ -266,11 +262,11 @@ const styles = StyleSheet.create({
   },
   ctaRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 16,
     marginBottom: 40,
   },
   ctaBtn: {
-    width: '48%',
+    flex: 1,
     aspectRatio: 148 / 145,
     backgroundColor: '#F6E9D7',
     borderRadius: 16,
@@ -278,74 +274,67 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 10,
   },
-  ctaIconWrapper: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FFF9F1',
-    alignItems: 'center',
-    justifyContent: 'center',
+  ctaIcon: {
     marginBottom: 10,
   },
   ctaBtnTitle: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 15,
+    lineHeight: 18,
     color: '#945C2D',
-    marginBottom: 4,
+    marginBottom: 10,
   },
   ctaBtnDesc: {
     fontFamily: 'Pretendard-Regular',
-    fontSize: 13,
+    fontSize: 15,
     color: '#945C2D',
     textAlign: 'center',
-    lineHeight: 18,
+    lineHeight: 25,
   },
   summarySection: {
     marginBottom: 40,
   },
   sectionTitle: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 15,
+    fontSize: 14,
+    lineHeight: 17,
     color: '#945C2D',
     marginBottom: 10,
   },
   summaryRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 8,
   },
   summaryCard: {
-    width: '23%',
+    flex: 1,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    paddingVertical: 15,
+    paddingTop: 15,
+    paddingBottom: 22,
+    paddingHorizontal: 15,
     alignItems: 'center',
   },
-  summaryIconBg: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
+  summaryIcon: {
     marginBottom: 15,
   },
   summaryLabel: {
     fontFamily: 'Pretendard-Regular',
     fontSize: 11,
+    lineHeight: 16,
     color: '#945C2D',
-    marginBottom: 5,
+    marginBottom: 15,
   },
   summaryCount: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 11,
+    lineHeight: 12,
   },
   routineSection: {
     marginBottom: 0,
   },
   tagsRow: {
     flexDirection: 'column',
-    alignSelf: 'flex-start',
-    alignItems: 'flex-end',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   tagActive: {
     backgroundColor: '#945C2D',
@@ -370,7 +359,7 @@ const styles = StyleSheet.create({
     color: '#BE9D82',
   },
   productList: {
-    gap: 15,
+    gap: 10,
   },
   productCard: {
     width: '100%',
@@ -396,22 +385,25 @@ const styles = StyleSheet.create({
   productTitle: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 13,
+    lineHeight: 16,
     color: '#945C2D',
-    marginBottom: 6,
+    marginBottom: 10,
   },
   productDesc: {
     fontFamily: 'Pretendard-Regular',
     fontSize: 11,
     color: '#945C2D',
-    lineHeight: 18,
+    lineHeight: 19,
   },
-  statusIconBg: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+  statusIconRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 11,
     marginLeft: 10,
+  },
+  statusChevron: {
+    fontSize: 12,
+    color: '#BE9D82',
   },
   pagination: {
     flexDirection: 'row',

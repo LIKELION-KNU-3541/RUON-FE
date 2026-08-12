@@ -12,6 +12,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import InfoBox from '../../../shared/components/InfoBox';
 // TODO: 서버 연동 시 DUMMY_PRODUCTS import 삭제 및 API 응답 데이터 사용
 import { DUMMY_PRODUCTS } from '../data/dummyData';
+import StatusIcon1 from '../../../../assets/icons/vanityPage_icon1.svg';
+import StatusIcon2 from '../../../../assets/icons/vanityPage_icon2.svg';
+import StatusIcon3 from '../../../../assets/icons/vanityPage_icon3.svg';
+import StatusIcon4 from '../../../../assets/icons/vanityPage_icon4.svg';
+import CareIcon from '../../../../assets/icons/result_green_icon.svg';
 
 const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
 
@@ -23,10 +28,10 @@ const STATUS_LABEL = {
 };
 
 const STATUS_ICON = {
-  safe: '👍',
-  caution: '⏸️',
-  selective: '🌙',
-  danger: '👤',
+  safe: StatusIcon1,
+  caution: StatusIcon2,
+  selective: StatusIcon3,
+  danger: StatusIcon4,
 };
 
 /**
@@ -42,7 +47,7 @@ export default function ProductDetailScreen({ product: productProp, onBack, onAd
   const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
 
   const statusLabel = STATUS_LABEL[product.safetyLevel] ?? STATUS_LABEL.safe;
-  const statusIcon = STATUS_ICON[product.safetyLevel] ?? STATUS_ICON.safe;
+  const StatusIcon = STATUS_ICON[product.safetyLevel] ?? STATUS_ICON.safe;
   const fullIngredients = basicInfo.fullIngredients ?? basicInfo.mainIngredients;
   const ingredientsPreview = `${fullIngredients.split(',')[0].trim()} 외 전성분 확인`;
 
@@ -93,25 +98,23 @@ export default function ProductDetailScreen({ product: productProp, onBack, onAd
 
           {/* 사용 상태 카드 */}
           <View style={styles.statusCard}>
-            <View style={styles.statusHeader}>
-              <View style={styles.statusIconCircle}>
-                <Text style={styles.statusIcon}>{statusIcon}</Text>
-              </View>
+            <StatusIcon width={30} height={30} />
+            <View style={styles.statusTextCol}>
               <Text style={styles.statusTitle}>{statusLabel}</Text>
+              <Text style={styles.statusDesc}>{product.usageNote}</Text>
             </View>
-            <Text style={styles.statusDesc}>{product.usageNote}</Text>
           </View>
 
           {/* 추천 카드 */}
           {product.recommendation && (
             <View style={styles.statusCard}>
-              <View style={styles.statusHeader}>
-                <View style={styles.statusIconCircle}>
-                  <Text style={styles.statusIcon}>💧</Text>
-                </View>
-                <Text style={styles.statusTitle}>{product.recommendation.title}</Text>
+              <View style={styles.careIconCircle}>
+                <CareIcon width={16} height={16} />
               </View>
-              <Text style={styles.statusDesc}>{product.recommendation.note}</Text>
+              <View style={styles.statusTextCol}>
+                <Text style={styles.statusTitle}>{product.recommendation.title}</Text>
+                <Text style={styles.statusDesc}>{product.recommendation.note}</Text>
+              </View>
             </View>
           )}
 
@@ -140,7 +143,7 @@ export default function ProductDetailScreen({ product: productProp, onBack, onAd
               onPress={() => setIngredientsExpanded((v) => !v)}
             >
               <Text style={styles.infoLabel}>전성분</Text>
-              <Text style={[styles.infoValue, styles.infoValueLink]}>
+              <Text style={styles.infoValue}>
                 {ingredientsExpanded ? fullIngredients : ingredientsPreview}
               </Text>
             </TouchableOpacity>
@@ -212,20 +215,20 @@ const styles = StyleSheet.create({
   // 제품 카드
   productCard: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(255,255,255,0.6)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    alignItems: 'center',
+    height: 128,
+    marginBottom: 20,
+    overflow: 'hidden',
   },
   productImageWrapper: {
-    width: 64,
-    height: 80,
-    borderRadius: 12,
+    width: 102,
+    height: '100%',
     backgroundColor: '#F0E4D6',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
     overflow: 'hidden',
   },
   productImage: {
@@ -237,100 +240,104 @@ const styles = StyleSheet.create({
   },
   productCardInfo: {
     flex: 1,
-    gap: 6,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    gap: 32,
   },
   productName: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 15,
+    fontSize: 14,
+    lineHeight: 17,
     color: '#945C2D',
-    marginBottom: 2,
   },
   productInfoLine: {
     flexDirection: 'row',
   },
   productInfoLabel: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 12,
+    fontSize: 10,
+    lineHeight: 12,
     color: '#C47D41',
-    width: 60,
+    width: 70,
   },
   productInfoValue: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 12,
+    fontSize: 10,
+    lineHeight: 12,
     color: '#C47D41',
   },
   // 상태 / 추천 카드
   statusCard: {
-    backgroundColor: '#F3FAF4',
-    borderWidth: 1,
-    borderColor: '#CFEBD6',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-  },
-  statusHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
-    gap: 10,
-  },
-  statusIconCircle: {
-    width: 32,
-    height: 32,
+    backgroundColor: '#FAFFF8',
+    borderWidth: 0.5,
+    borderColor: '#BE9D82',
     borderRadius: 16,
-    backgroundColor: '#DFF3E3',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    gap: 19,
+    marginBottom: 20,
+  },
+  careIconCircle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#E0FFD4',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  statusIcon: {
-    fontSize: 15,
+  statusTextCol: {
+    flex: 1,
+    gap: 10,
   },
   statusTitle: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 15,
-    color: '#2E7D4F',
+    fontSize: 14,
+    lineHeight: 17,
+    color: '#945C2D',
   },
   statusDesc: {
-    fontFamily: 'Pretendard-Regular',
-    fontSize: 12,
-    color: '#5C8A6C',
-    lineHeight: 18,
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 10,
+    lineHeight: 12,
+    color: '#8C8279',
   },
   // 가져온 정보
   sectionTitle: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 15,
+    fontSize: 14,
+    lineHeight: 17,
     color: '#945C2D',
-    marginTop: 8,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   infoCard: {
-    backgroundColor: 'rgba(255,255,255,0.6)',
+    backgroundColor: '#FFF9F1',
+    borderWidth: 0.5,
+    borderColor: '#BE9D82',
     borderRadius: 16,
     padding: 16,
     marginBottom: 8,
   },
   infoRow: {
     flexDirection: 'row',
-    paddingVertical: 6,
+    paddingVertical: 5,
   },
   infoLabel: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 13,
-    color: '#BE9D82',
-    width: 80,
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 11,
+    lineHeight: 13,
+    color: '#755235',
+    width: 60,
     flexShrink: 0,
   },
   infoValue: {
-    fontFamily: 'Pretendard-SemiBold',
-    fontSize: 13,
-    color: '#945C2D',
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 11,
+    lineHeight: 13,
+    color: '#755235',
     flex: 1,
     flexWrap: 'wrap',
-  },
-  infoValueLink: {
-    color: '#A9652F',
-    textDecorationLine: 'underline',
   },
   // 하단 추가 버튼
   addBar: {
