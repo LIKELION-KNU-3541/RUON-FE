@@ -1,0 +1,21 @@
+import React from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { useResponsiveScale } from '../../../shared/utils/responsive';
+
+export default function RoutineRecommendation({ routine, theme }) {
+  const { scale, moderateScale } = useResponsiveScale();
+
+  return (
+    <Pressable className="flex-row items-center rounded-[21px] p-[20px]" style={{ backgroundColor: theme.card, borderColor: theme.border }}>
+      <View className="flex-1">
+        <View className="self-start rounded-[6px] p-[4px]" style={{ backgroundColor: theme.badge }}>
+          <Text className="font-pretendard-semibold" style={{ fontSize: moderateScale(6), color: theme.revtext }}>
+            {routine.tipCondition} 반응 반영
+          </Text>
+        </View>
+        <Text className="mt-[5px] font-pretendard-semibold" style={{ color: theme.text, fontSize: moderateScale(14)}}>{routine.tipTitle}</Text>
+        <Text className="mt-[5px] font-pretendard-regular leading-[12px]" style={{ color: theme.subtext, fontSize: moderateScale(10)}}>{routine.tipDescription}</Text>
+      </View>
+    </Pressable>
+  );
+}

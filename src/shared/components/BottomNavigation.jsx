@@ -19,7 +19,8 @@ import RoutineIcon from '../../../assets/icons/routine-icon.svg';
 import VanityIcon from '../../../assets/icons/vanity-icon.svg';
 import { useResponsiveScale } from '../utils/responsive';
 
-const ACTIVE_COLOR = '#A7632D';
+const DEFAULT_ACTIVE_COLOR = '#945C2D';
+const DEFAULT_INACTIVE_COLOR = '#BE9D82';
 
 const ITEMS = [
   {
@@ -30,6 +31,7 @@ const ITEMS = [
   {
     icon: RoutineIcon,
     label: '루틴',
+    fillOnActive: true,
   },
   {
     icon: VanityIcon,
@@ -43,8 +45,12 @@ const ITEMS = [
 
 export default function BottomNavigation({
   activeIndex = 0,
+  onSelect,
+  theme,
 }) {
   const { scale, moderateScale } = useResponsiveScale();
+  const activeColor = theme?.text ?? DEFAULT_ACTIVE_COLOR;
+  const inactiveColor = theme?.subtext ?? DEFAULT_INACTIVE_COLOR;
 
   const useNativeGlass =
     Platform.OS === 'ios' &&
@@ -73,6 +79,7 @@ export default function BottomNavigation({
                 selected: active,
               }}
               activeOpacity={0.65}
+              onPress={() => onSelect?.(index)}
               style={[
                 styles.item,
                 {
@@ -83,10 +90,11 @@ export default function BottomNavigation({
               <Icon
                 width={scale(16)}
                 height={scale(16)}
-                stroke={ACTIVE_COLOR}
+                color={active ? activeColor : inactiveColor}
+                stroke={active ? activeColor : inactiveColor}
                 fill={
                   active && fillOnActive
-                    ? ACTIVE_COLOR
+                    ? activeColor
                     : 'none'
                 }
               />
@@ -94,7 +102,7 @@ export default function BottomNavigation({
               <Text
                 style={{
                   marginTop: scale(5),
-                  color: ACTIVE_COLOR,
+                  color: active ? activeColor : inactiveColor,
                   fontFamily: active
                     ? 'Pretendard-SemiBold'
                     : 'Pretendard-Regular',

@@ -1,0 +1,104 @@
+import React, { useState } from 'react';
+import { ImageBackground, ScrollView, StatusBar, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import BottomNavigation from '../../../shared/components/BottomNavigation';
+import SectionHeader from '../../../shared/components/SectionHeader';
+import { useResponsiveScale } from '../../../shared/utils/responsive';
+import RoutinePreview from '../components/RoutinePreview';
+import RoutineReactionCard from '../components/RoutineReactionCard'; 
+import RoutineRecommendation from '../components/RoutineRecommendation';
+import RoutineStandardCard from '../components/RoutineStandardCard';
+import RoutineToggle from '../components/RoutineToggle';
+import ConditionIcon from '../../../../assets/icons/condition-icon.svg';
+import AvailableTimeIcon from '../../../../assets/icons/availableTime-icon.svg';
+import VanityIcon from '../../../../assets/icons/vanity-icon.svg';
+
+
+const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
+
+const THEMES = {
+  morning: {
+    background: '#945C2D', heading: '#945C2D', text: '#945C2D', subtext: '#BE9D82', revtext: '#FFF9F1',
+    card: 'rgba(255,255,255,0.90)', border: 'transparent', divider: '#F0E5DB',
+    preview: '#C9916B', waveOne: '#AF7753', waveTwo: '#A96F49', badge: '#BE9D82',
+    reaction: '#F7F3EE', reactionActive: '#FFF0BD', selectedText: '#9B683F',
+    reactionIconLine: '#E7D9CD', reactionIconBackground: '#FFF9F1', reactionIconSelected: '#EEB301', reactionIconSelectedLine: '#9B683F',
+    toggleActive: '#A5642E', toggleActiveText: '#FFF', toggleInactiveText: '#C5A98F',
+  },
+  evening: {
+    background: '#9A5B2C', heading: '#FFF6E9', text: '#FFF9F1', subtext: '#FFDFC4', revtext: '#945C2D',
+    card: 'rgba(255,255,255,0.10)', border: 'rgba(255,255,255,0.28)', divider: 'rgba(255,255,255,0.25)',
+    preview: '#7B461F', waveOne: '#915426', waveTwo: '#6F3D1D', badge: 'rgba(255,255,255,0.85)',
+    reaction: 'rgba(255,255,255,0.10)', reactionActive: '#F0C54A', selectedText: '#FFF',
+    reactionIconLine: '#FFF9F1', reactionIconBackground: 'rgba(255,255,255,0.10)', reactionIconSelected: '#F8CF38', reactionIconSelectedLine: '#9A5B2C',
+    toggleActive: '#FFF8EE', toggleActiveText: '#9A5B2C', toggleInactiveText: '#DAB99B',
+  },
+};
+
+const ROUTINES = {
+  morning: {
+    label: '아침', title: '오늘의 아침 루틴 안내',
+    description: '오늘은 보유 제품으로\n진정과 장벽 케어에 집중할게요.',
+    duration: '30초 퀵루틴', previewTitle: '아침 루틴 미리보기',
+    products: [{ label: '클렌징 워터', image: require("../../../../assets/images/CleansingWater.png") }, { label: '수딩젤', image: require("../../../../assets/images/SoothingGel.png") }, { label: '모이스처 로션', image: require("../../../../assets/images/Rotion.png") }],
+    tipCondition: '건조', tipTitle: '내일은 보습을 먼저 챙겨요', tipDescription: '기록된 반응을 바탕으로\n세정을 줄이고 보습 중심으로 조정했어요.',
+  },
+  evening: {
+    label: '저녁', title: '오늘의 저녁 루틴 안내',
+    description: '오늘은 보유 제품으로\n진정과 장벽 케어에 집중할게요.',
+    duration: '여유 루틴', previewTitle: '저녁 루틴 미리보기',
+    products: [{ label: '클렌징 워터' }, { label: '수딩 토너', type: 'tube' }, { label: '모이스처 로션', type: 'pump' }, { label: '진정 크림', type: 'jar' }],
+    tipCondition: '편안한',tipTitle: '오늘의 보습 루틴을 유지해요', tipDescription: '오늘 피부 컨디션도 보고 다음 루틴도 이어가요.',
+  },
+};
+
+export default function RoutinePage({ onOpenHome }) {
+  const [mode, setMode] = useState('morning');
+  const { scale, moderateScale } = useResponsiveScale();
+  const theme = THEMES[mode];
+  const routine = ROUTINES[mode];
+  const evening = mode === 'evening';
+
+  const content = (
+    <SafeAreaView className="flex-1">
+      <StatusBar barStyle="dark-content" backgroundColor={theme.background} />
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 45, paddingBottom: 149}}>
+        <View className="flex-1 mt-[20px]">
+          <RoutineToggle mode={mode} onChange={setMode} theme={theme}></RoutineToggle>
+        </View>
+        
+        <View className="flex-1" style={{ marginTop: 40, gap: 7}}>
+          <Text className="font-pretendard-semibold" style={{ fontSize: moderateScale(22), color: theme.text}}>오늘의 {routine.label} 루틴 안내 </Text>
+          <Text className="font-pretandard-medium marginTop-[7px]" style={{ fontSize: moderateScale(14), color: theme.subtext, lineHeight: 20}}>오늘은 보유 제품으로{'\n'}진정과 장벽 케어에 집중할게요.</Text>
+        </View>
+        
+        <SectionHeader title="오늘의 기준" containerStyle={{ marginTop: 40}} theme={theme}></SectionHeader>
+        <View className="flex-row justify-between gap-[16px] ">
+          <RoutineStandardCard title="컨디션" content="건조함 외 3개" icon={ConditionIcon} theme={theme}></RoutineStandardCard>
+          <RoutineStandardCard title="가능한 시간" content="30초 퀵루틴" icon={AvailableTimeIcon} theme={theme}></RoutineStandardCard>
+        </View>
+        
+        <SectionHeader title="아침 루틴 미리보기" containerStyle={{ marginTop: 30}} theme={theme}></SectionHeader>
+        <RoutinePreview products={routine.products} evening={evening} />
+
+        <View className="mt-[30px] mb-[10px] flex-row justify-between">
+          <Text className="font-pretendard-semibold " style={{fontSize: moderateScale(14), color: theme.text}} >반응 기록</Text>
+          <Text className="font-pretendard-medium" style={{fontSize: moderateScale(10), color: theme.subtext}} >기록된 반응은 다음 루틴에 반영돼요</Text>
+        </View>
+        <RoutineReactionCard theme={theme}></RoutineReactionCard>
+      
+        <View className="mt-[30px] mb-[10px] flex-row gap-[10px]">
+          <VanityIcon fill={theme.text}></VanityIcon>
+          <Text className="font-pretendard-semibold" style={{fontSize: moderateScale(14), color: theme.text}} >내일 루틴 추천</Text>
+        </View>
+        <RoutineRecommendation theme={theme} routine={routine}></RoutineRecommendation>
+      </ScrollView>
+      <BottomNavigation activeIndex={1} onSelect={onOpenHome} theme={theme} />
+      
+    </SafeAreaView>
+
+  );
+
+  if (evening) return <View style={{ flex: 1, backgroundColor: theme.background }}>{content}</View>;
+  return <ImageBackground source={backgroundSource} resizeMode="cover" style={{ flex: 1 }}>{content}</ImageBackground>;
+}
