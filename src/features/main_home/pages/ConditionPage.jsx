@@ -24,10 +24,10 @@ const CONDITION_ROWS = [
 const TIME_OPTIONS = ['30초 퀵루틴', '기본 루틴', '여유 루틴'];
 const backgroundSource = require('../../../../assets/images/TodayCheckIn-bg.png');
 
-export default function ConditionPage({ initialConditions = [], onBack, onApply }) {
+export default function ConditionPage({ initialConditions = [], initialTime = null, onBack, onApply }) {
   const { scale, moderateScale } = useResponsiveScale();
   const [conditions, setConditions] = useState(initialConditions);
-  const [time, setTime] = useState(null);
+  const [time, setTime] = useState(initialTime);
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -110,7 +110,7 @@ export default function ConditionPage({ initialConditions = [], onBack, onApply 
           <TouchableOpacity
             className="mt-[31px] h-[61px] items-center justify-center rounded-[20px] bg-[#FFF9F1]"
             activeOpacity={0.8}
-            onPress={() => onApply(conditions)}
+            onPress={() => onApply(conditions, time)}
           >
             <Text className="font-pretendard-semibold text-[#A25C2C]" style={{ fontSize: moderateScale(16) }}>
               반영하기

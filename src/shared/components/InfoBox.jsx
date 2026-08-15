@@ -14,7 +14,7 @@ export default function InfoBox() {
     <View className="mt-[30px] overflow-hidden rounded-[12px] border border-[#A9652F] bg-[#FDF9F5]">
       <View className="px-[18px] pb-[12px] pt-[13px]">
         <View className="mb-[14px] flex-row items-center">
-          <NoticeIcon width={17} height={17} />
+          <NoticeIcon width={17} height={17} fill="#945C2D" />
           <Text className="ml-[10px] font-pretendard-medium text-[10px] text-[#A9652F]">
             정보 이용 안내
           </Text>

@@ -26,12 +26,14 @@ export default function SectionHeader({
       <Text className="font-pretendard-semibold" style={[{ fontSize: moderateScale(14), color: theme.text ?? DEFAULT_THEME.text }, titleStyle]}>
         {title}
       </Text>
-      <TouchableOpacity className="flex-row items-center" activeOpacity={0.65} onPress={onPress}>
-        <Text className="mr-[10px] font-pretendard-medium" style={[{ fontSize: moderateScale(10), color: theme.subtext ?? DEFAULT_THEME.subtext }, actionStyle]}>
-          {actionLabel}
-        </Text>
-        <Rarrow width={scale(3)} height={scale(6)} color={resolvedArrowColor} fill={resolvedArrowColor} />
-      </TouchableOpacity>
+      {onPress && (
+        <TouchableOpacity className="flex-row items-center" activeOpacity={0.65} onPress={onPress}>
+          <Text className="mr-[10px] font-pretendard-medium" style={[{ fontSize: moderateScale(10), color: theme.subtext ?? DEFAULT_THEME.subtext }, actionStyle]}>
+            {actionLabel}
+          </Text>
+          <Rarrow width={scale(3)} height={scale(6)} color={resolvedArrowColor} fill={resolvedArrowColor} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

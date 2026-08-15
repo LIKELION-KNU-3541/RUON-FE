@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ImageBackground, ScrollView, StatusBar, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomNavigation from '../../../shared/components/BottomNavigation';
@@ -11,29 +11,12 @@ import RoutineStandardCard from '../components/RoutineStandardCard';
 import RoutineToggle from '../components/RoutineToggle';
 import ConditionIcon from '../../../../assets/icons/condition-icon.svg';
 import AvailableTimeIcon from '../../../../assets/icons/availableTime-icon.svg';
+import NothingIcon from '../../../../assets/icons/nothing-icon.svg';
 import VanityIcon from '../../../../assets/icons/vanity-icon.svg';
+import { ROUTINE_THEMES } from '../constants/routineThemes';
 
 
 const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
-
-const THEMES = {
-  morning: {
-    background: '#945C2D', heading: '#945C2D', text: '#945C2D', subtext: '#BE9D82', revtext: '#FFF9F1',
-    card: 'rgba(255,255,255,0.90)', border: 'transparent', divider: '#F0E5DB',
-    preview: '#C9916B', waveOne: '#AF7753', waveTwo: '#A96F49', badge: '#BE9D82',
-    reaction: '#F7F3EE', reactionActive: '#FFF0BD', selectedText: '#9B683F',
-    reactionIconLine: '#E7D9CD', reactionIconBackground: '#FFF9F1', reactionIconSelected: '#EEB301', reactionIconSelectedLine: '#9B683F',
-    toggleActive: '#A5642E', toggleActiveText: '#FFF', toggleInactiveText: '#C5A98F',
-  },
-  evening: {
-    background: '#9A5B2C', heading: '#FFF6E9', text: '#FFF9F1', subtext: '#FFDFC4', revtext: '#945C2D',
-    card: 'rgba(255,255,255,0.10)', border: 'rgba(255,255,255,0.28)', divider: 'rgba(255,255,255,0.25)',
-    preview: '#7B461F', waveOne: '#915426', waveTwo: '#6F3D1D', badge: 'rgba(255,255,255,0.85)',
-    reaction: 'rgba(255,255,255,0.10)', reactionActive: '#F0C54A', selectedText: '#FFF',
-    reactionIconLine: '#FFF9F1', reactionIconBackground: 'rgba(255,255,255,0.10)', reactionIconSelected: '#F8CF38', reactionIconSelectedLine: '#9A5B2C',
-    toggleActive: '#FFF8EE', toggleActiveText: '#9A5B2C', toggleInactiveText: '#DAB99B',
-  },
-};
 
 const ROUTINES = {
   morning: {
@@ -52,33 +35,61 @@ const ROUTINES = {
   },
 };
 
-export default function RoutinePage({ onOpenHome }) {
-  const [mode, setMode] = useState('morning');
+export default function RoutinePage({
+  mode = 'morning',
+  conditions = [],
+  availableTime = null,
+  onModeChange,
+  onOpenHome,
+  onOpenStandard,
+}) {
   const { scale, moderateScale } = useResponsiveScale();
-  const theme = THEMES[mode];
+  const theme = ROUTINE_THEMES[mode];
   const routine = ROUTINES[mode];
   const evening = mode === 'evening';
+  const hasConditions = conditions.length > 0;
+  const hasAvailableTime = Boolean(availableTime);
 
   const content = (
     <SafeAreaView className="flex-1">
       <StatusBar barStyle="dark-content" backgroundColor={theme.background} />
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 45, paddingBottom: 149}}>
-        <View className="flex-1 mt-[20px]">
-          <RoutineToggle mode={mode} onChange={setMode} theme={theme}></RoutineToggle>
-        </View>
+      <View className="pt-[20px] pb-[5px] px-[24px] justify-between">
+        <RoutineToggle mode={mode} onChange={onModeChange} theme={theme}></RoutineToggle>
+      </View>
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 149}}>
         
-        <View className="flex-1" style={{ marginTop: 40, gap: 7}}>
+        <View className="flex-1" style={{ marginTop: 35, gap: 7}}>
           <Text className="font-pretendard-semibold" style={{ fontSize: moderateScale(22), color: theme.text}}>오늘의 {routine.label} 루틴 안내 </Text>
           <Text className="font-pretandard-medium marginTop-[7px]" style={{ fontSize: moderateScale(14), color: theme.subtext, lineHeight: 20}}>오늘은 보유 제품으로{'\n'}진정과 장벽 케어에 집중할게요.</Text>
         </View>
         
-        <SectionHeader title="오늘의 기준" containerStyle={{ marginTop: 40}} theme={theme}></SectionHeader>
+        <SectionHeader
+          title="오늘의 기준"
+          containerStyle={{ marginTop: 40}}
+          theme={theme}
+          onPress={onOpenStandard}
+        ></SectionHeader>
         <View className="flex-row justify-between gap-[16px] ">
-          <RoutineStandardCard title="컨디션" content="건조함 외 3개" icon={ConditionIcon} theme={theme}></RoutineStandardCard>
-          <RoutineStandardCard title="가능한 시간" content="30초 퀵루틴" icon={AvailableTimeIcon} theme={theme}></RoutineStandardCard>
+          <RoutineStandardCard
+            title="컨디션"
+            content={hasConditions ? `${conditions[0]}${conditions.length > 1 ? ` 외 ${conditions.length - 1}개` : ''}` : '기록이 없어요'}
+            icon={hasConditions ? ConditionIcon : NothingIcon}
+            theme={theme}
+          ></RoutineStandardCard>
+          <RoutineStandardCard
+            title="가능한 시간"
+            content={availableTime ?? '기록이 없어요'}
+            icon={hasAvailableTime ? AvailableTimeIcon : NothingIcon}
+            theme={theme}
+          ></RoutineStandardCard>
         </View>
         
-        <SectionHeader title="아침 루틴 미리보기" containerStyle={{ marginTop: 30}} theme={theme}></SectionHeader>
+        <SectionHeader
+          title={routine.previewTitle}
+          containerStyle={{ marginTop: 30}}
+          theme={theme}
+          onPress={onOpenStandard}
+        ></SectionHeader>
         <RoutinePreview products={routine.products} evening={evening} />
 
         <View className="mt-[30px] mb-[10px] flex-row justify-between">
