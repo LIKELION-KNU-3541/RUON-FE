@@ -52,7 +52,15 @@ export default function RoutineStandardCard({
         </View>
         <View className="mt-[20px] flex-row items-center gap-[5px]">
           <Icon width={scale(16)} height={scale(16)} fill={resolvedIconColor} color={resolvedIconColor} />
-          <Text className="font-pretendard-regular" style={{ color: resolvedContentColor, fontSize: moderateScale(15) }}>
+          <Text
+            className="flex-1 font-pretendard-regular"
+            style={{
+              color: resolvedContentColor,
+              fontSize: moderateScale(15),
+              lineHeight: moderateScale(20),
+              flexShrink: 1,
+            }}
+          >
             {content}
           </Text>
         </View>

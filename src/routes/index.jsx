@@ -35,6 +35,10 @@ export default function AppRoutes() {
         availableTime={availableTime}
         onModeChange={setRoutineMode}
         onOpenHome={(index) => index === 0 && setScreen('home')}
+        onOpenCondition={() => {
+          setConditionReturnScreen('routine');
+          setScreen('condition');
+        }}
         onOpenStandard={() => setScreen('routine-standard')}
         onOpenTomorrowRoutine={() => setScreen('tomorrow-routine')}
       />

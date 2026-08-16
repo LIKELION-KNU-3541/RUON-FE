@@ -21,16 +21,12 @@ const eveningBackgroundSource = require('../../../../assets/images/TodayCheckIn-
 
 const ROUTINES = {
   morning: {
-    label: '아침', title: '오늘의 아침 루틴 안내',
-    description: '오늘은 보유 제품으로\n진정과 장벽 케어에 집중할게요.',
-    duration: '30초 퀵루틴', previewTitle: '아침 루틴 미리보기',
+    label: '아침', previewTitle: '아침 루틴 미리보기',
     products: [{ label: '클렌징 워터', image: require("../../../../assets/images/CleansingWater.png") }, { label: '수딩젤', image: require("../../../../assets/images/SoothingGel.png") }, { label: '모이스처 로션', image: require("../../../../assets/images/Rotion.png") }],
     tipCondition: '건조', tipTitle: '내일은 보습을 먼저 챙겨요', tipDescription: '기록된 반응을 바탕으로\n세정을 줄이고 보습 중심으로 조정했어요.',
   },
   evening: {
-    label: '저녁', title: '오늘의 저녁 루틴 안내',
-    description: '오늘은 보유 제품으로\n진정과 장벽 케어에 집중할게요.',
-    duration: '여유 루틴', previewTitle: '저녁 루틴 미리보기',
+    label: '저녁', previewTitle: '저녁 루틴 미리보기',
     products: [{ label: '클렌징 워터', image: require("../../../../assets/images/CleansingWater.png") }, { label: '수딩 토너', image: require("../../../../assets/images/SoothingToner.png") }, { label: '모이스처 로션', image: require("../../../../assets/images/Rotion.png") }, { label: '집중 크림', image: require("../../../../assets/images/Cream.png") }],
     tipCondition: '편안한',tipTitle: '오늘의 보습 루틴을 유지해요', tipDescription: '오늘 피부 컨디션도 보고 다음 루틴도 이어가요.',
   },
@@ -42,10 +38,11 @@ export default function RoutinePage({
   availableTime = null,
   onModeChange,
   onOpenHome,
+  onOpenCondition,
   onOpenStandard,
   onOpenTomorrowRoutine,
 }) {
-  const { scale, moderateScale } = useResponsiveScale();
+  const { moderateScale } = useResponsiveScale();
   const theme = ROUTINE_THEMES[mode];
   const routine = ROUTINES[mode];
   const evening = mode === 'evening';
@@ -72,7 +69,7 @@ export default function RoutinePage({
           title="오늘의 기준"
           containerStyle={{ marginTop: 40}}
           theme={theme}
-          onPress={onOpenStandard}
+          onPress={onOpenCondition}
         ></SectionHeader>
         <View className="flex-row justify-between gap-[16px] ">
           <RoutineStandardCard
