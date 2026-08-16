@@ -6,7 +6,7 @@ import RoutineStandardScreen from '../features/routine/screens/RoutineStandardSc
 import TomorrowRoutineScreen from '../features/routine/screens/TomorrowRoutineScreen';
 
 export default function AppRoutes() {
-  const [screen, setScreen] = useState('routine');
+  const [screen, setScreen] = useState('home');
   const [routineMode, setRoutineMode] = useState('morning');
   const [selectedConditions, setSelectedConditions] = useState([]);
   const [availableTime, setAvailableTime] = useState(null);

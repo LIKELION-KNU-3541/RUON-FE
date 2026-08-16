@@ -2,11 +2,13 @@ import React from 'react';
 import { Image, Pressable, Text, View } from 'react-native';
 import { useResponsiveScale } from '../../../shared/utils/responsive';
 import RightArrow from '../../../../assets/icons/Rarrow.svg';
+import RoutineGlassBackground from './RoutineGlassBackground';
 
 export default function RoutineProduct({ product, index, theme, onPress }) {
   const { scale, moderateScale } = useResponsiveScale();
   const stepNumber = String(index + 1).padStart(2, '0');
   const isRecommended = product.isRecommended ?? product.recommended ?? false;
+  const evening = theme?.screenBackground === '#9A5B2C';
 
   return (
     <Pressable
@@ -19,11 +21,16 @@ export default function RoutineProduct({ product, index, theme, onPress }) {
       accessibilityLabel={`${stepNumber}단계 ${product.category}, ${product.productName}`}
       onPress={() => onPress?.(product, index)}
     >
+      <RoutineGlassBackground visible={evening && !isRecommended} />
       <View className="h-[216px] flex-row">
         <View className="w-[32%] px-[18px] pb-[16px] pt-[15px]">
           <View
             className="h-10 w-10 items-center justify-center rounded-full"
-            style={{ backgroundColor: isRecommended ? theme.recommendedNumber : theme.number }}
+            style={{
+              backgroundColor: isRecommended ? theme.recommendedNumber : theme.number,
+              borderWidth: evening && !isRecommended ? 1 : 0,
+              borderColor: evening && !isRecommended ? 'rgba(255,249,241,0.42)' : 'transparent',
+            }}
           >
             <Text
               className="font-pretendard-semibold"

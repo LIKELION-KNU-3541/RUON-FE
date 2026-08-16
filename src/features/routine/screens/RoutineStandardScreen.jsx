@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, StatusBar, View } from 'react-native';
+import { ImageBackground, ScrollView, StatusBar, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import PageHeader from '../../../shared/components/PageHeader';
 import RoutineProduct from '../components/RoutineProduct';
@@ -10,6 +10,8 @@ import { ROUTINE_THEMES } from '../constants/routineThemes';
 import ConditionIcon from '../../../../assets/icons/condition-icon.svg';
 import AvailableTimeIcon from '../../../../assets/icons/availableTime-icon.svg';
 import NothingIcon from '../../../../assets/icons/nothing-icon.svg';
+
+const eveningBackgroundSource = require('../../../../assets/images/TodayCheckIn-bg.png');
 
 const ROUTINE_PRODUCTS = {
   morning: [
@@ -102,8 +104,11 @@ export default function RoutineStandardScreen({
       }
     : {};
 
-  return (
-    <SafeAreaView className="flex-1" style={{ backgroundColor: theme.screenBackground }}>
+  const content = (
+    <SafeAreaView
+      className="flex-1"
+      style={{ backgroundColor: mode === 'evening' ? 'transparent' : theme.screenBackground }}
+    >
       <StatusBar
         barStyle={mode === 'evening' ? 'light-content' : 'dark-content'}
         backgroundColor={theme.screenBackground}
@@ -155,4 +160,14 @@ export default function RoutineStandardScreen({
       />
     </SafeAreaView>
   );
+
+  if (mode === 'evening') {
+    return (
+      <ImageBackground source={eveningBackgroundSource} resizeMode="cover" style={{ flex: 1 }}>
+        {content}
+      </ImageBackground>
+    );
+  }
+
+  return content;
 }

@@ -17,6 +17,7 @@ import { ROUTINE_THEMES } from '../constants/routineThemes';
 
 
 const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
+const eveningBackgroundSource = require('../../../../assets/images/TodayCheckIn-bg.png');
 
 const ROUTINES = {
   morning: {
@@ -30,7 +31,7 @@ const ROUTINES = {
     label: '저녁', title: '오늘의 저녁 루틴 안내',
     description: '오늘은 보유 제품으로\n진정과 장벽 케어에 집중할게요.',
     duration: '여유 루틴', previewTitle: '저녁 루틴 미리보기',
-    products: [{ label: '클렌징 워터' }, { label: '수딩 토너', type: 'tube' }, { label: '모이스처 로션', type: 'pump' }, { label: '진정 크림', type: 'jar' }],
+    products: [{ label: '클렌징 워터', image: require("../../../../assets/images/CleansingWater.png") }, { label: '수딩 토너', image: require("../../../../assets/images/SoothingToner.png") }, { label: '모이스처 로션', image: require("../../../../assets/images/Rotion.png") }, { label: '집중 크림', image: require("../../../../assets/images/Cream.png") }],
     tipCondition: '편안한',tipTitle: '오늘의 보습 루틴을 유지해요', tipDescription: '오늘 피부 컨디션도 보고 다음 루틴도 이어가요.',
   },
 };
@@ -115,6 +116,12 @@ export default function RoutinePage({
 
   );
 
-  if (evening) return <View style={{ flex: 1, backgroundColor: theme.background }}>{content}</View>;
+  if (evening) {
+    return (
+      <ImageBackground source={eveningBackgroundSource} resizeMode="cover" style={{ flex: 1 }}>
+        {content}
+      </ImageBackground>
+    );
+  }
   return <ImageBackground source={backgroundSource} resizeMode="cover" style={{ flex: 1 }}>{content}</ImageBackground>;
 }
