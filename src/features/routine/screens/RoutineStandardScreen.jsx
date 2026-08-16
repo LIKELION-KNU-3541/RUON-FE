@@ -142,7 +142,7 @@ export default function RoutineStandardScreen({
           ))}
         </View>
         <View className="mt-[20px]">
-          <RoutineNotice theme={theme} />
+          <RoutineNotice theme={theme} content={"안전한 사용을 위해 제품의 전체 성분과 사용 조건을\n다시 확인하고, 불편감이 지속되면 전문가와 상담해주세요."} />
         </View>
       </ScrollView>
       <RoutineConditionModal

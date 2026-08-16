@@ -42,6 +42,7 @@ export default function RoutinePage({
   onModeChange,
   onOpenHome,
   onOpenStandard,
+  onOpenTomorrowRoutine,
 }) {
   const { scale, moderateScale } = useResponsiveScale();
   const theme = ROUTINE_THEMES[mode];
@@ -102,7 +103,11 @@ export default function RoutinePage({
           <VanityIcon fill={theme.text}></VanityIcon>
           <Text className="font-pretendard-semibold" style={{fontSize: moderateScale(14), color: theme.text}} >내일 루틴 추천</Text>
         </View>
-        <RoutineRecommendation theme={theme} routine={routine}></RoutineRecommendation>
+        <RoutineRecommendation
+          theme={theme}
+          routine={routine}
+          onPress={onOpenTomorrowRoutine}
+        ></RoutineRecommendation>
       </ScrollView>
       <BottomNavigation activeIndex={1} onSelect={onOpenHome} theme={theme} />
       

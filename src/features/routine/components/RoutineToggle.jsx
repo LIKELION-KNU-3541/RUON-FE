@@ -11,15 +11,24 @@ export default function RoutineToggle({ mode, onChange, theme }) {
       {['morning', 'evening'].map((item) => {
         const active = mode === item;
         const iconColor = active ? theme.toggleActiveText : theme.toggleInactiveText;
+        const inactiveBorderColor = mode === 'morning'
+          ? '#BE9D82'
+          : 'rgba(255,255,255,0.35)';
         const Icon = item === 'morning' ? MorningIcon : MoonIcon;
         return (
           <Pressable
             accessibilityRole="button"
             key={item}
             onPress={() => onChange(item)}
-            style={[{ width: '47%', alignItems: 'center', borderRadius: 16, paddingVertical: 10 },
-              active && { backgroundColor: theme.toggleActive },
-              mode === 'evening' && !active && { borderWidth: 0.5, borderColor: 'rgba(255,255,255,0.35)' }]}
+            style={{
+              width: '47%',
+              alignItems: 'center',
+              borderRadius: 16,
+              paddingVertical: 10,
+              backgroundColor: active ? theme.toggleActive : 'transparent',
+              borderWidth: active ? 0 : 0.5,
+              borderColor: active ? 'transparent' : inactiveBorderColor,
+            }}
           >
             <View className="flex-row items-center gap-[5px]">
               <Icon width={16} height={16} fill={iconColor} color={iconColor} />

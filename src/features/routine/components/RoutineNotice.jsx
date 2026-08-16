@@ -4,7 +4,7 @@ import { useResponsiveScale } from '../../../shared/utils/responsive';
 import NoticeIcon from '../../../../assets/icons/notice-icon.svg';
 
 
-export default function RoutineNotice({ theme }) {
+export default function RoutineNotice({ theme, content }) {
   const { moderateScale } = useResponsiveScale();
   const evening = theme?.screenBackground === '#9A5B2C';
   const noticeColor = evening ? '#FFDFC4' : '#BE9D82';
@@ -22,7 +22,7 @@ export default function RoutineNotice({ theme }) {
         className="flex-1 font-pretendard-regular"
         style={{ color: noticeColor, fontSize: moderateScale(10)}}
       >
-        안전한 사용을 위해 제품의 전체 성분과 사용 조건을{'\n'}다시 확인하고, 불편감이 지속되면 전문가와 상담해주세요.
+        {content}
       </Text>
     </View>
   );

@@ -3,6 +3,7 @@ import HomePage from '../features/main_home/pages/HomePage';
 import ConditionPage from '../features/main_home/pages/ConditionPage';
 import RoutinePage from '../features/routine/screens/RoutineScreen';
 import RoutineStandardScreen from '../features/routine/screens/RoutineStandardScreen';
+import TomorrowRoutineScreen from '../features/routine/screens/TomorrowRoutineScreen';
 
 export default function AppRoutes() {
   const [screen, setScreen] = useState('routine');
@@ -35,6 +36,7 @@ export default function AppRoutes() {
         onModeChange={setRoutineMode}
         onOpenHome={(index) => index === 0 && setScreen('home')}
         onOpenStandard={() => setScreen('routine-standard')}
+        onOpenTomorrowRoutine={() => setScreen('tomorrow-routine')}
       />
     );
   }
@@ -50,6 +52,15 @@ export default function AppRoutes() {
           setConditionReturnScreen('routine-standard');
           setScreen('condition');
         }}
+      />
+    );
+  }
+
+  if (screen === 'tomorrow-routine') {
+    return (
+      <TomorrowRoutineScreen
+        mode={routineMode}
+        onBack={() => setScreen('routine')}
       />
     );
   }

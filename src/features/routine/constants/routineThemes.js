@@ -6,6 +6,9 @@ export const ROUTINE_THEMES = {
     reaction: '#F7F3EE', reactionActive: '#FFF0BD', selectedText: '#9B683F',
     reactionIconLine: '#E7D9CD', reactionIconBackground: '#FFF9F1', reactionIconSelected: '#EEB301', reactionIconSelectedLine: '#9B683F',
     toggleActive: '#A5642E', toggleActiveText: '#FFF', toggleInactiveText: '#C5A98F',
+    recommendedCard: '#FFF7FE', recommendedBorder: '#F06DE7',
+    recommendedNumber: '#F6D5F3', recommendedNumberText: '#C566BD',
+    recommendedBadge: '#F6D5F3', recommendedBadgeText: '#C566BD',
   },
   evening: {
     background: '#9A5B2C', screenBackground: '#9A5B2C', heading: '#FFF6E9', text: '#FFF9F1', subtext: '#FFDFC4', revtext: '#945C2D',
@@ -14,5 +17,8 @@ export const ROUTINE_THEMES = {
     reaction: 'rgba(255,255,255,0.10)', reactionActive: '#F0C54A', selectedText: '#FFF',
     reactionIconLine: '#FFF9F1', reactionIconBackground: 'rgba(255,255,255,0.10)', reactionIconSelected: '#F8CF38', reactionIconSelectedLine: '#9A5B2C',
     toggleActive: '#FFF8EE', toggleActiveText: '#9A5B2C', toggleInactiveText: '#DAB99B',
+    recommendedCard: 'rgba(255,247,254,0.16)', recommendedBorder: '#F6A7EF',
+    recommendedNumber: '#F6D5F3', recommendedNumberText: '#C566BD',
+    recommendedBadge: '#F6D5F3', recommendedBadgeText: '#C566BD',
   },
 };

@@ -6,11 +6,15 @@ import RightArrow from '../../../../assets/icons/Rarrow.svg';
 export default function RoutineProduct({ product, index, theme, onPress }) {
   const { scale, moderateScale } = useResponsiveScale();
   const stepNumber = String(index + 1).padStart(2, '0');
+  const isRecommended = product.isRecommended ?? product.recommended ?? false;
 
   return (
     <Pressable
       className="overflow-hidden rounded-[16px] border"
-      style={{ backgroundColor: theme.card, borderColor: theme.border }}
+      style={{
+        backgroundColor: isRecommended ? theme.recommendedCard : theme.card,
+        borderColor: isRecommended ? theme.recommendedBorder : theme.border,
+      }}
       accessibilityRole="button"
       accessibilityLabel={`${stepNumber}단계 ${product.category}, ${product.productName}`}
       onPress={() => onPress?.(product, index)}
@@ -19,9 +23,15 @@ export default function RoutineProduct({ product, index, theme, onPress }) {
         <View className="w-[32%] px-[18px] pb-[16px] pt-[15px]">
           <View
             className="h-10 w-10 items-center justify-center rounded-full"
-            style={{ backgroundColor: theme.number }}
+            style={{ backgroundColor: isRecommended ? theme.recommendedNumber : theme.number }}
           >
-            <Text className="font-pretendard-semibold" style={{ color: '#FFF9F1', fontSize: moderateScale(15) }}>
+            <Text
+              className="font-pretendard-semibold"
+              style={{
+                color: isRecommended ? theme.recommendedNumberText : '#FFF9F1',
+                fontSize: moderateScale(15),
+              }}
+            >
               {stepNumber}
             </Text>
           </View>
@@ -39,10 +49,19 @@ export default function RoutineProduct({ product, index, theme, onPress }) {
                 <Text className="font-pretendard-semibold" style={{ color: theme.text, fontSize: moderateScale(16) }}>
                   {product.category}
                 </Text>
-                {product.fromVanity && (
-                  <View className="rounded-[7px] bg-[#E1F7D6] px-[6px] py-[5px]">
-                    <Text className="font-pretendard-semibold text-[#63AB63]" style={{ fontSize: moderateScale(6) }}>
-                      내 화장대
+                {(isRecommended || product.fromVanity) && (
+                  <View
+                    className="rounded-[7px] px-[6px] py-[5px]"
+                    style={{ backgroundColor: isRecommended ? theme.recommendedBadge : '#E1F7D6' }}
+                  >
+                    <Text
+                      className="font-pretendard-semibold"
+                      style={{
+                        color: isRecommended ? theme.recommendedBadgeText : '#63AB63',
+                        fontSize: moderateScale(6),
+                      }}
+                    >
+                      {isRecommended ? '추천' : '내 화장대'}
                     </Text>
                   </View>
                 )}
