@@ -54,7 +54,10 @@ export default function RoutinePage({
 
   const content = (
     <SafeAreaView className="flex-1">
-      <StatusBar barStyle="dark-content" backgroundColor={theme.background} />
+      <StatusBar
+        barStyle={evening ? 'light-content' : 'dark-content'}
+        backgroundColor={theme.background}
+      />
       <View className="pt-[20px] pb-[5px] px-[24px] justify-between">
         <RoutineToggle mode={mode} onChange={onModeChange} theme={theme}></RoutineToggle>
       </View>
@@ -110,7 +113,7 @@ export default function RoutinePage({
           onPress={onOpenTomorrowRoutine}
         ></RoutineRecommendation>
       </ScrollView>
-      <BottomNavigation activeIndex={1} onSelect={onOpenHome} theme={theme} />
+      <BottomNavigation activeIndex={1} onSelect={onOpenHome} theme={theme} mode={mode} />
       
     </SafeAreaView>
 

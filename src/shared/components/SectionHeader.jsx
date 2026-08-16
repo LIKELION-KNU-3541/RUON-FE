@@ -31,7 +31,7 @@ export default function SectionHeader({
           <Text className="mr-[10px] font-pretendard-medium" style={[{ fontSize: moderateScale(10), color: theme.subtext ?? DEFAULT_THEME.subtext }, actionStyle]}>
             {actionLabel}
           </Text>
-          <Rarrow width={scale(3)} height={scale(6)} color={resolvedArrowColor} fill={resolvedArrowColor} />
+          <Rarrow width={scale(3)} height={scale(6)} color={resolvedArrowColor} fill="none" />
         </TouchableOpacity>
       )}
     </View>

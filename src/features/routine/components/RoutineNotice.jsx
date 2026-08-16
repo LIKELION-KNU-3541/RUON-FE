@@ -1,8 +1,8 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Image, Text, View } from 'react-native';
 import { useResponsiveScale } from '../../../shared/utils/responsive';
-import NoticeIcon from '../../../../assets/icons/notice-icon.svg';
 
+const warningIcon = require('../../../../assets/images/WarningIcon-bg.png');
 
 export default function RoutineNotice({ theme, content }) {
   const { moderateScale } = useResponsiveScale();
@@ -17,7 +17,7 @@ export default function RoutineNotice({ theme, content }) {
         borderColor: evening ? 'rgba(255,255,255,0.28)' : '#CDA887',
       }}
     >
-      <NoticeIcon width={17} height={17} fill={noticeColor}></NoticeIcon>
+      <Image source={warningIcon} resizeMode="contain" style={{ width: 17, height: 17 }} />
       <Text
         className="flex-1 font-pretendard-regular"
         style={{ color: noticeColor, fontSize: moderateScale(10)}}

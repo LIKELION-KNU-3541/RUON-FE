@@ -125,6 +125,7 @@ export default function RoutineStandardScreen({
             content={hasConditions ? `${conditions[0]}${conditions.length > 1 ? ` 외 ${conditions.length - 1}개` : ''}` : '기록이 없어요'}
             icon={hasConditions ? ConditionIcon : NothingIcon}
             theme={theme}
+            onPress={onOpenCondition}
             {...eveningCriteriaColors}
           />
           <RoutineStandardCard
@@ -132,6 +133,7 @@ export default function RoutineStandardScreen({
             content={availableTime ?? '기록이 없어요'}
             icon={hasAvailableTime ? AvailableTimeIcon : NothingIcon}
             theme={theme}
+            onPress={onOpenCondition}
             {...eveningCriteriaColors}
           />
         </View>

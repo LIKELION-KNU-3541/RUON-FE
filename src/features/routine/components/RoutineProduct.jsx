@@ -1,35 +1,47 @@
 import React from 'react';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image, ImageBackground, Pressable, Text, View } from 'react-native';
 import { useResponsiveScale } from '../../../shared/utils/responsive';
 import RightArrow from '../../../../assets/icons/Rarrow.svg';
-import RoutineGlassBackground from './RoutineGlassBackground';
+
+const eveningCardBackground = require('../../../../assets/images/RoutineProduct-bg.png');
+const eveningNumberBackground = require('../../../../assets/images/RoutineProductNum-bg.png');
 
 export default function RoutineProduct({ product, index, theme, onPress }) {
   const { scale, moderateScale } = useResponsiveScale();
   const stepNumber = String(index + 1).padStart(2, '0');
   const isRecommended = product.isRecommended ?? product.recommended ?? false;
   const evening = theme?.screenBackground === '#9A5B2C';
+  const showEveningImage = evening && !isRecommended;
 
   return (
     <Pressable
       className="overflow-hidden rounded-[16px] border"
       style={{
-        backgroundColor: isRecommended ? theme.recommendedCard : theme.card,
-        borderColor: isRecommended ? theme.recommendedBorder : theme.border,
+        backgroundColor: isRecommended ? theme.recommendedCard : showEveningImage ? 'transparent' : theme.card,
+        borderColor: isRecommended ? theme.recommendedBorder : showEveningImage ? 'transparent' : theme.border,
+        overflow: showEveningImage ? 'visible' : 'hidden',
+        width: '100%',
+        alignSelf: 'stretch',
       }}
       accessibilityRole="button"
       accessibilityLabel={`${stepNumber}단계 ${product.category}, ${product.productName}`}
       onPress={() => onPress?.(product, index)}
     >
-      <RoutineGlassBackground visible={evening && !isRecommended} />
-      <View className="h-[216px] flex-row">
+      <ImageBackground
+        source={showEveningImage ? eveningCardBackground : undefined}
+        resizeMode="stretch"
+        className="h-[216px] flex-row"
+        style={{ alignSelf: 'stretch' }}
+      >
         <View className="w-[32%] px-[18px] pb-[16px] pt-[15px]">
-          <View
+          <ImageBackground
+            source={showEveningImage ? eveningNumberBackground : undefined}
+            resizeMode="stretch"
             className="h-10 w-10 items-center justify-center rounded-full"
             style={{
-              backgroundColor: isRecommended ? theme.recommendedNumber : theme.number,
-              borderWidth: evening && !isRecommended ? 1 : 0,
-              borderColor: evening && !isRecommended ? 'rgba(255,249,241,0.42)' : 'transparent',
+              backgroundColor: isRecommended ? theme.recommendedNumber : showEveningImage ? 'transparent' : theme.number,
+              borderWidth: evening && !isRecommended && !showEveningImage ? 1 : 0,
+              borderColor: evening && !isRecommended && !showEveningImage ? 'rgba(255,249,241,0.42)' : 'transparent',
             }}
           >
             <Text
@@ -41,7 +53,7 @@ export default function RoutineProduct({ product, index, theme, onPress }) {
             >
               {stepNumber}
             </Text>
-          </View>
+          </ImageBackground>
           <Image
             source={product.image}
             resizeMode="contain"
@@ -90,7 +102,7 @@ export default function RoutineProduct({ product, index, theme, onPress }) {
             {product.description}
           </Text>
         </View>
-      </View>
+      </ImageBackground>
     </Pressable>
   );
 }
