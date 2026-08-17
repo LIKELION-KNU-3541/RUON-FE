@@ -36,6 +36,8 @@ export default function RoutinePage({
   mode = 'morning',
   conditions = [],
   availableTime = null,
+  selectedReaction = null,
+  onReactionChange,
   onModeChange,
   onTabChange,
   onOpenCondition,
@@ -58,7 +60,7 @@ export default function RoutinePage({
       <View className="pt-[20px] pb-[5px] px-[24px] justify-between">
         <RoutineToggle mode={mode} onChange={onModeChange} theme={theme}></RoutineToggle>
       </View>
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 149}}>
+      <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 130}}>
         
         <View className="flex-1" style={{ marginTop: 35, gap: 7}}>
           <Text className="font-pretendard-semibold" style={{ fontSize: moderateScale(22), color: theme.text}}>오늘의 {routine.label} 루틴 안내 </Text>
@@ -98,7 +100,11 @@ export default function RoutinePage({
           <Text className="font-pretendard-semibold " style={{fontSize: moderateScale(14), color: theme.text}} >반응 기록</Text>
           <Text className="font-pretendard-medium" style={{fontSize: moderateScale(10), color: theme.subtext}} >기록된 반응은 다음 루틴에 반영돼요</Text>
         </View>
-        <RoutineReactionCard theme={theme}></RoutineReactionCard>
+        <RoutineReactionCard
+          theme={theme}
+          selectedIndex={selectedReaction}
+          onSelect={onReactionChange}
+        ></RoutineReactionCard>
       
         <View className="mt-[30px] mb-[10px] flex-row gap-[10px]">
           <VanityIcon fill={theme.text}></VanityIcon>

@@ -9,6 +9,10 @@ export default function AppRoutes({ surveyData }) {
   const [homeScreen, setHomeScreen] = useState('home');
   const [selectedConditions, setSelectedConditions] = useState([]);
   const [availableTime, setAvailableTime] = useState(null);
+  const [routineReactions, setRoutineReactions] = useState({
+    morning: null,
+    evening: null,
+  });
 
   if (activeTab === 'vanity') {
     return <VanityRouter onTabChange={setActiveTab} />;
@@ -19,6 +23,13 @@ export default function AppRoutes({ surveyData }) {
       <RoutineRouter
         conditions={selectedConditions}
         availableTime={availableTime}
+        reactions={routineReactions}
+        onReactionChange={(mode, selectedIndex) => {
+          setRoutineReactions((current) => ({
+            ...current,
+            [mode]: selectedIndex,
+          }));
+        }}
         onConditionChange={(conditions, time) => {
           setSelectedConditions(conditions);
           setAvailableTime(time);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Image, ImageBackground, Pressable, Text, View } from 'react-native';
 import { useResponsiveScale } from '../../../shared/utils/responsive';
 const eveningReactionBackground = require('../../../../assets/images/RoutineReaction-bg.png');
@@ -51,9 +51,8 @@ const ITEMS = [
 ];
 
 
-export default function RoutineReactionCard ( { theme }) {
+export default function RoutineReactionCard({ theme, selectedIndex = null, onSelect }) {
   const { scale, moderateScale } = useResponsiveScale();
-  const [selectedIndex, setSelectedIndex] = useState(null);
   const evening = theme?.screenBackground === '#9A5B2C';
   const labelColor = evening ? '#AAAAAA' : '#3F3F3F';
 
@@ -83,7 +82,7 @@ export default function RoutineReactionCard ( { theme }) {
             : evening ? EveningFaceIcon : MorningFaceIcon;
 
           return (
-          <Pressable className="flex-1 items-center" key={label} onPress={() => setSelectedIndex(index)}>
+          <Pressable className="flex-1 items-center" key={label} onPress={() => onSelect?.(index)}>
             <View
               className="items-center justify-center my-[12.5px]"
             >
