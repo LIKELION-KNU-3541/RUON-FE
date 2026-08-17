@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import HomePage from '../features/main_home/pages/HomePage';
-import ConditionPage from '../features/main_home/pages/ConditionPage';
+import HomeScreen from '../features/main_home/screens/HomeScreen';
+import ConditionScreen from '../features/main_home/screens/ConditionScreen';
 import RoutineRouter from '../features/routine';
 import VanityRouter from '../features/vanity';
 
-export default function AppRoutes() {
+export default function AppRoutes({ surveyData }) {
   const [activeTab, setActiveTab] = useState('home');
   const [homeScreen, setHomeScreen] = useState('home');
   const [selectedConditions, setSelectedConditions] = useState([]);
@@ -30,7 +30,7 @@ export default function AppRoutes() {
 
   if (homeScreen === 'condition') {
     return (
-      <ConditionPage
+      <ConditionScreen
         initialConditions={selectedConditions}
         initialTime={availableTime}
         onBack={() => setHomeScreen('home')}
@@ -44,8 +44,9 @@ export default function AppRoutes() {
   }
 
   return (
-    <HomePage
+    <HomeScreen
       conditions={selectedConditions}
+      surveyData={surveyData}
       onOpenCondition={() => setHomeScreen('condition')}
       onTabChange={setActiveTab}
     />
