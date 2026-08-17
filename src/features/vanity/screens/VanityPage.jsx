@@ -8,6 +8,7 @@ import {
   StatusBar,
   ImageBackground,
 } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useResponsiveScale } from '../../../shared/utils/responsive';
 import PhotoGuideModal from '../components/PhotoGuideModal';
@@ -43,10 +44,36 @@ export default function VanityPage({
   const { scale, moderateScale } = useResponsiveScale();
   const [showPhotoGuide, setShowPhotoGuide] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [products, setProducts] = useState(DUMMY_PRODUCTS);
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const handleCaptureGuide = () => {
     setShowPhotoGuide(false);
     onNavigateCamera?.();
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleEnterDeleteMode = () => {
+    setIsDeleteMode(true);
+    setSelectedIds([]);
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteMode(false);
+    setSelectedIds([]);
+  };
+
+  const handleConfirmDelete = () => {
+    if (selectedIds.length === 0) return;
+    setProducts((prev) => prev.filter((p) => !selectedIds.includes(p.id)));
+    setIsDeleteMode(false);
+    setSelectedIds([]);
   };
 
   const getSafetyIcon = (level) => {
@@ -65,8 +92,8 @@ export default function VanityPage({
 
   const filteredProducts =
     activeFilter === 'all'
-      ? DUMMY_PRODUCTS
-      : DUMMY_PRODUCTS.filter((product) => product.safetyLevel === activeFilter);
+      ? products
+      : products.filter((product) => product.safetyLevel === activeFilter);
 
   return (
     <ImageBackground source={backgroundSource} resizeMode="cover" style={styles.root}>
@@ -173,10 +200,15 @@ export default function VanityPage({
                 })}
               </View>
 
-              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-end', marginTop: 20 }}>
-                <TrashIcon width={11} height={12} style={{ marginRight: 4 }} />
-                <Text style={{ color: '#E78483', fontSize: 11, fontFamily: 'Pretendard-Regular' }}>삭제</Text>
-              </TouchableOpacity>
+              {!isDeleteMode && (
+                <TouchableOpacity
+                  style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-end', marginTop: 20 }}
+                  onPress={handleEnterDeleteMode}
+                >
+                  <TrashIcon width={11} height={12} style={{ marginRight: 4 }} />
+                  <Text style={{ color: '#E78483', fontSize: 11, fontFamily: 'Pretendard-Regular' }}>삭제</Text>
+                </TouchableOpacity>
+              )}
             </View>
 
             {/* 제품 리스트 (더미 데이터 매핑) */}
@@ -184,14 +216,22 @@ export default function VanityPage({
 
               {filteredProducts.map((product) => {
                 const SafetyIcon = getSafetyIcon(product.safetyLevel);
+                const isSelected = selectedIds.includes(product.id);
 
                 return (
                   <TouchableOpacity
                     key={product.id}
-                    style={styles.productCard}
+                    style={[styles.productCard, isDeleteMode && isSelected && styles.productCardSelected]}
                     activeOpacity={0.7}
-                    onPress={() => onNavigateDetail?.(product)}
+                    onPress={() =>
+                      isDeleteMode ? toggleSelect(product.id) : onNavigateDetail?.(product)
+                    }
                   >
+                    {isDeleteMode && (
+                      <View style={[styles.checkCircle, isSelected && styles.checkCircleSelected]}>
+                        {isSelected && <Text style={styles.checkMark}>✓</Text>}
+                      </View>
+                    )}
                     <View style={styles.productImgPlaceholder}>
                       <Text style={{ fontSize: 28 }}>🧴</Text>
                     </View>
@@ -201,7 +241,7 @@ export default function VanityPage({
                     </View>
                     <View style={styles.statusIconRow}>
                       <SafetyIcon width={30} height={30} />
-                      <Text style={styles.statusChevron}>&gt;</Text>
+                      {!isDeleteMode && <Text style={styles.statusChevron}>&gt;</Text>}
                     </View>
                   </TouchableOpacity>
                 );
@@ -225,6 +265,29 @@ export default function VanityPage({
 
         </ScrollView>
       </SafeAreaView>
+
+      {/* 삭제 모드 액션 바 (삭제/취소) */}
+      {isDeleteMode && (
+        <View
+          pointerEvents="box-none"
+          style={[styles.deleteBarWrap, { left: scale(24), right: scale(24), bottom: scale(130) }]}
+        >
+          <TouchableOpacity activeOpacity={0.85} onPress={handleConfirmDelete}>
+            <BlurView intensity={20} tint="light" style={[styles.deletePill, { height: scale(52), borderRadius: scale(40) }]}>
+              <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(221, 127, 120, 0.3)', borderRadius: scale(40) }]} />
+              <TrashIcon width={18} height={18} style={{ marginRight: 8 }} />
+              <Text style={styles.deletePillText}>삭제 {selectedIds.length}</Text>
+            </BlurView>
+          </TouchableOpacity>
+
+          <TouchableOpacity activeOpacity={0.85} onPress={handleCancelDelete} style={{ marginTop: 10 }}>
+            <BlurView intensity={20} tint="light" style={[styles.cancelPill, { height: scale(52), borderRadius: scale(40) }]}>
+              <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(255, 249, 241, 0.5)', borderRadius: scale(40) }]} />
+              <Text style={styles.cancelPillText}>취소</Text>
+            </BlurView>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* 바텀 네비게이션 적용 */}
       <BottomNavigation activeIndex={2} onTabChange={onTabChange} />
@@ -380,6 +443,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
   },
+  productCardSelected: {
+    backgroundColor: '#F6E9D7',
+  },
   productImgPlaceholder: {
     width: 30,
     height: 70,
@@ -413,6 +479,30 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#BE9D82',
   },
+  checkCircle: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#FBF9F7',
+    borderWidth: 0.5,
+    borderColor: '#BE9D82',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  checkCircleSelected: {
+    backgroundColor: '#945C2D',
+    borderColor: '#945C2D',
+  },
+  checkMark: {
+    color: '#F5F5F5',
+    fontSize: 8,
+    fontWeight: 'bold',
+    lineHeight: 9,
+  },
   pagination: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -441,5 +531,36 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 16,
     color: '#945C2D',
+  },
+  deleteBarWrap: {
+    position: 'absolute',
+    zIndex: 25,
+  },
+  deletePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 0.5,
+    borderColor: '#BE9D82',
+    overflow: 'hidden',
+  },
+  deletePillText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
+    letterSpacing: -0.4,
+    color: '#E78483',
+  },
+  cancelPill: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 0.5,
+    borderColor: '#BE9D82',
+    overflow: 'hidden',
+  },
+  cancelPillText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
+    letterSpacing: -0.4,
+    color: '#BE9D82',
   },
 });
