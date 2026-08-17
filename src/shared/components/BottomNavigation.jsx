@@ -34,6 +34,7 @@ const ITEMS = [
   {
     icon: VanityIcon,
     label: '화장대',
+    fillOnActive: true,
   },
   {
     icon: MyPageIcon,
@@ -43,6 +44,7 @@ const ITEMS = [
 
 export default function BottomNavigation({
   activeIndex = 0,
+  onTabChange,
 }) {
   const { scale, moderateScale } = useResponsiveScale();
 
@@ -64,6 +66,12 @@ export default function BottomNavigation({
         ({ icon, label, fillOnActive }, index) => {
           const active = index === activeIndex;
           const Icon = icon;
+          
+          // tabKey mapping based on label
+          let tabKey = 'home';
+          if (label === '루틴') tabKey = 'routine';
+          if (label === '화장대') tabKey = 'vanity';
+          if (label === '마이페이지') tabKey = 'mypage';
 
           return (
             <TouchableOpacity
@@ -79,6 +87,7 @@ export default function BottomNavigation({
                   width: scale(68),
                 },
               ]}
+              onPress={() => onTabChange?.(tabKey)}
             >
               <Icon
                 width={scale(16)}

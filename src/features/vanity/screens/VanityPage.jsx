@@ -1,0 +1,437 @@
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  StatusBar,
+  ImageBackground,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useResponsiveScale } from '../../../shared/utils/responsive';
+import PhotoGuideModal from '../components/PhotoGuideModal';
+import BottomNavigation from '../../../shared/components/BottomNavigation';
+import InfoBox from '../../../shared/components/InfoBox';
+import { DUMMY_PRODUCTS } from '../data/dummyData';
+import CameraIcon from '../../../../assets/icons/vanityPage_camera.svg';
+import UploadIcon from '../../../../assets/icons/vanityPage_upload.svg';
+import SummaryIcon1 from '../../../../assets/icons/vanityPage_icon1.svg';
+import SummaryIcon2 from '../../../../assets/icons/vanityPage_icon2.svg';
+import SummaryIcon3 from '../../../../assets/icons/vanityPage_icon3.svg';
+import SummaryIcon4 from '../../../../assets/icons/vanityPage_icon4.svg';
+import TrashIcon from '../../../../assets/icons/trash_icon.svg';
+
+const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
+
+const FILTERS = [
+  { key: 'all', label: '전체' },
+  { key: 'safe', label: '사용 유지' },
+  { key: 'caution', label: '잠시 보류' },
+  { key: 'selective', label: '선택 사용' },
+  { key: 'danger', label: '추가 확인' },
+];
+
+export default function VanityPage({
+  onNavigateCamera,
+  onNavigateFileUpload,
+  onNavigateSearch,
+  onNavigateDetail,
+  onTabChange,
+}) {
+  const { scale, moderateScale } = useResponsiveScale();
+  const [showPhotoGuide, setShowPhotoGuide] = useState(false);
+  const [activeFilter, setActiveFilter] = useState('all');
+
+  const handleCaptureGuide = () => {
+    setShowPhotoGuide(false);
+    onNavigateCamera?.();
+  };
+
+  const getSafetyIcon = (level) => {
+    switch (level) {
+      case 'safe':
+        return SummaryIcon1;
+      case 'caution':
+        return SummaryIcon2;
+      case 'selective':
+        return SummaryIcon3;
+      case 'danger':
+      default:
+        return SummaryIcon4;
+    }
+  };
+
+  const filteredProducts =
+    activeFilter === 'all'
+      ? DUMMY_PRODUCTS
+      : DUMMY_PRODUCTS.filter((product) => product.safetyLevel === activeFilter);
+
+  return (
+    <ImageBackground source={backgroundSource} resizeMode="cover" style={styles.root}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFF9F1" />
+
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: scale(150) }]}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>
+              내 화장대에서{'\n'}오늘 쓸 제품을 정리해요
+            </Text>
+            <Text style={styles.headerSub}>
+              보유 제품 정보를 확인해{'\n'}지금 활용할 제품과 추가로 살펴볼 제품을 정리해요.
+            </Text>
+          </View>
+
+          {/* CTA Buttons */}
+          <View style={styles.ctaRow}>
+            <TouchableOpacity
+              style={styles.ctaBtn}
+              activeOpacity={0.8}
+              onPress={() => setShowPhotoGuide(true)}
+            >
+              <CameraIcon width={28} height={28} style={styles.ctaIcon} />
+              <Text style={styles.ctaBtnTitle}>사진 촬영</Text>
+              <Text style={styles.ctaBtnDesc}>제품 사진으로{'\n'}분석해요</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.ctaBtn}
+              activeOpacity={0.8}
+              onPress={() => onNavigateFileUpload?.()}
+            >
+              <UploadIcon width={28} height={28} style={styles.ctaIcon} />
+              <Text style={styles.ctaBtnTitle}>파일 업로드</Text>
+              <Text style={styles.ctaBtnDesc}>사진 파일로{'\n'}분석해요</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* 분석 요약 */}
+          <View style={styles.summarySection}>
+            <Text style={styles.sectionTitle}>분석 요약</Text>
+            <View style={styles.summaryRow}>
+              {/* 사용 유지 */}
+              <View style={styles.summaryCard}>
+                <SummaryIcon1 width={30} height={30} style={styles.summaryIcon} />
+                <Text style={styles.summaryLabel}>사용 유지</Text>
+                <Text style={[styles.summaryCount, { color: '#6ECF86' }]}>08</Text>
+              </View>
+
+              {/* 잠시 보류 */}
+              <View style={styles.summaryCard}>
+                <SummaryIcon2 width={30} height={30} style={styles.summaryIcon} />
+                <Text style={styles.summaryLabel}>잠시 보류</Text>
+                <Text style={[styles.summaryCount, { color: '#FF907F' }]}>04</Text>
+              </View>
+
+              {/* 선택 사용 */}
+              <View style={styles.summaryCard}>
+                <SummaryIcon3 width={30} height={30} style={styles.summaryIcon} />
+                <Text style={styles.summaryLabel}>선택 사용</Text>
+                <Text style={[styles.summaryCount, { color: '#F7D76D' }]}>03</Text>
+              </View>
+
+              {/* 추가 확인 */}
+              <View style={styles.summaryCard}>
+                <SummaryIcon4 width={30} height={30} style={styles.summaryIcon} />
+                <Text style={styles.summaryLabel}>추가 확인</Text>
+                <Text style={[styles.summaryCount, { color: '#A567B1' }]}>02</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.routineSection}>
+            <View style={styles.tagsRow}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                {FILTERS.map((filter) => {
+                  const active = activeFilter === filter.key;
+                  return (
+                    <TouchableOpacity
+                      key={filter.key}
+                      style={active ? styles.tagActive : styles.tagInactive}
+                      activeOpacity={0.8}
+                      onPress={() => setActiveFilter(filter.key)}
+                    >
+                      <Text style={active ? styles.tagTextActive : styles.tagTextInactive}>
+                        {filter.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-end', marginTop: 20 }}>
+                <TrashIcon width={11} height={12} style={{ marginRight: 4 }} />
+                <Text style={{ color: '#E78483', fontSize: 11, fontFamily: 'Pretendard-Regular' }}>삭제</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* 제품 리스트 (더미 데이터 매핑) */}
+            <View style={styles.productList}>
+
+              {filteredProducts.map((product) => {
+                const SafetyIcon = getSafetyIcon(product.safetyLevel);
+
+                return (
+                  <TouchableOpacity
+                    key={product.id}
+                    style={styles.productCard}
+                    activeOpacity={0.7}
+                    onPress={() => onNavigateDetail?.(product)}
+                  >
+                    <View style={styles.productImgPlaceholder}>
+                      <Text style={{ fontSize: 28 }}>🧴</Text>
+                    </View>
+                    <View style={styles.productInfo}>
+                      <Text style={styles.productTitle} numberOfLines={1}>{product.name}</Text>
+                      <Text style={styles.productDesc} numberOfLines={2}>{product.usageNote}</Text>
+                    </View>
+                    <View style={styles.statusIconRow}>
+                      <SafetyIcon width={30} height={30} />
+                      <Text style={styles.statusChevron}>&gt;</Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+
+            </View>
+
+            {/* Pagination */}
+            <View style={styles.pagination}>
+              <TouchableOpacity style={styles.pageBtn}><Text style={styles.pageBtnText}>&lt;</Text></TouchableOpacity>
+              <Text style={styles.pageText}>1 <Text style={{ fontWeight: '400' }}>/ 3</Text></Text>
+              <TouchableOpacity style={styles.pageBtn}><Text style={styles.pageBtnText}>&gt;</Text></TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Footer Info */}
+          <View style={{ marginBottom: 40 }}>
+            <View style={{ marginHorizontal: -24, marginTop: 28, height: 6, backgroundColor: '#D8C0AD' }} />
+            <InfoBox />
+          </View>
+
+        </ScrollView>
+      </SafeAreaView>
+
+      {/* 바텀 네비게이션 적용 */}
+      <BottomNavigation activeIndex={2} onTabChange={onTabChange} />
+
+      {/* 사진 촬영 가이드 모달 */}
+      <PhotoGuideModal
+        visible={showPhotoGuide}
+        onClose={() => setShowPhotoGuide(false)}
+        onCapture={handleCaptureGuide}
+      />
+    </ImageBackground>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 24,
+  },
+  header: {
+    marginBottom: 40,
+  },
+  headerTitle: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 22,
+    lineHeight: 32,
+    color: '#945C2D',
+    marginBottom: 8,
+  },
+  headerSub: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#BE9D82',
+  },
+  ctaRow: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 40,
+  },
+  ctaBtn: {
+    flex: 1,
+    aspectRatio: 148 / 145,
+    backgroundColor: '#F6E9D7',
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+  },
+  ctaIcon: {
+    marginBottom: 10,
+  },
+  ctaBtnTitle: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 15,
+    lineHeight: 18,
+    color: '#945C2D',
+    marginBottom: 10,
+  },
+  ctaBtnDesc: {
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 15,
+    color: '#945C2D',
+    textAlign: 'center',
+    lineHeight: 25,
+  },
+  summarySection: {
+    marginBottom: 40,
+  },
+  sectionTitle: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 14,
+    lineHeight: 17,
+    color: '#945C2D',
+    marginBottom: 10,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  summaryCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingTop: 15,
+    paddingBottom: 22,
+    paddingHorizontal: 15,
+    alignItems: 'center',
+  },
+  summaryIcon: {
+    marginBottom: 15,
+  },
+  summaryLabel: {
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 11,
+    lineHeight: 16,
+    color: '#945C2D',
+    marginBottom: 15,
+  },
+  summaryCount: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 11,
+    lineHeight: 12,
+  },
+  routineSection: {
+    marginBottom: 0,
+  },
+  tagsRow: {
+    flexDirection: 'column',
+    marginBottom: 20,
+  },
+  tagActive: {
+    backgroundColor: '#945C2D',
+    padding: 10,
+    borderRadius: 16,
+  },
+  tagTextActive: {
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 11,
+    lineHeight: 13,
+    color: '#FFF9F1',
+  },
+  tagInactive: {
+    backgroundColor: 'rgba(150, 92, 45, 0.1)',
+    padding: 10,
+    borderRadius: 16,
+  },
+  tagTextInactive: {
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 11,
+    lineHeight: 13,
+    color: '#BE9D82',
+  },
+  productList: {
+    gap: 10,
+  },
+  productCard: {
+    width: '100%',
+    height: 113,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    borderWidth: 0.5,
+    borderColor: '#BE9D82',
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  productImgPlaceholder: {
+    width: 30,
+    height: 70,
+    backgroundColor: '#EDE3D9',
+    borderRadius: 8,
+    marginRight: 20,
+  },
+  productInfo: {
+    flex: 1,
+  },
+  productTitle: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 13,
+    lineHeight: 16,
+    color: '#945C2D',
+    marginBottom: 10,
+  },
+  productDesc: {
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 11,
+    color: '#945C2D',
+    lineHeight: 19,
+  },
+  statusIconRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 11,
+    marginLeft: 10,
+  },
+  statusChevron: {
+    fontSize: 12,
+    color: '#BE9D82',
+  },
+  pagination: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 30,
+    height: 60,
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    backgroundColor: '#F6E9D7',
+  },
+  pageBtn: {
+    width: 25,
+    height: 25,
+    borderRadius: 13,
+    borderWidth: 1,
+    borderColor: '#BE9D82',
+    backgroundColor: '#FFF9F1',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pageBtnText: {
+    color: '#945C2D',
+    fontSize: 12,
+  },
+  pageText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
+    color: '#945C2D',
+  },
+});
