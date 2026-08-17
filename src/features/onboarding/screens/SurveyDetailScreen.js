@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   ScrollView,
   ImageBackground,
   Image,
@@ -11,6 +10,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import BottomButton from '../../../shared/components/BottomButton';
+import GlassButton from '../../../shared/components/GlassButton';
 
 // PNG line art images are exported at @3x resolution
 // 4p5p6p_top_circle.png: 612x762, 204x254
@@ -78,7 +78,12 @@ export default function SurveyDetailScreen({ onNext, surveyData, updateSurveyDat
           {/* 4. Form Controls Container */}
           <View style={{ marginTop: scaleH(44), paddingHorizontal: scaleW(24) }}>
             {/* Week Input (Left placeholder "?? 24" in #DEAA7A disappears on focus; Right "�? is fixed in #FFF9F1) */}
-            <View style={{ height: scaleH(50) }} className="w-full bg-white/10 rounded-[16px] border border-white/20 flex-row items-center px-5 mb-7">
+            <ImageBackground
+              source={require('../../../../assets/images/glass_button/large_glass@x3.png')}
+              style={{ width: scaleW(312), height: scaleH(50) }}
+              resizeMode="stretch"
+              className="flex-row items-center px-5 mb-7"
+            >
               <TextInput
                 value={weeks}
                 onChangeText={setWeeks}
@@ -90,33 +95,21 @@ export default function SurveyDetailScreen({ onNext, surveyData, updateSurveyDat
                 className="flex-1 text-[#FFF9F1] text-[14px] font-normal p-0"
               />
               <Text className="text-[#FFF9F1] text-[14px] font-normal ml-2">주</Text>
-            </View>
+            </ImageBackground>
 
             <View className="mb-7">
               <Text className="text-[#FFF9F1] text-[16px] font-medium leading-[19px] mb-3">
                 피부 고민 (복수 선택 가능)
               </Text>
               <View className="flex-row flex-wrap gap-2.5">
-                {concernOptions.map((item) => {
-                  const isSelected = concerns.includes(item);
-                  return (
-                    <TouchableOpacity
-                      key={item}
-                      activeOpacity={0.85}
-                      onPress={() => toggleConcern(item)}
-                      style={{ height: scaleH(43) }}
-                      className={`px-4 rounded-[16px] items-center justify-center ${isSelected ? 'bg-white' : 'bg-white/10'
-                        }`}
-                    >
-                      <Text
-                        className={`text-[14px] font-normal leading-[17px] ${isSelected ? 'text-[#945C2D]' : 'text-[#FFF9F1]'
-                          }`}
-                      >
-                        {item}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
+                {concernOptions.map((item) => (
+                  <GlassButton
+                    key={item}
+                    label={item}
+                    selected={concerns.includes(item)}
+                    onPress={() => toggleConcern(item)}
+                  />
+                ))}
               </View>
             </View>
 
@@ -125,26 +118,14 @@ export default function SurveyDetailScreen({ onNext, surveyData, updateSurveyDat
                 피부 타입 (1개 필수 선택)
               </Text>
               <View className="flex-row flex-wrap gap-2.5">
-                {skinTypeOptions.map((item) => {
-                  const isSelected = skinType === item;
-                  return (
-                    <TouchableOpacity
-                      key={item}
-                      activeOpacity={0.85}
-                      onPress={() => setSkinType(item)}
-                      style={{ height: scaleH(43) }}
-                      className={`px-4 rounded-[16px] items-center justify-center ${isSelected ? 'bg-white' : 'bg-white/10'
-                        }`}
-                    >
-                      <Text
-                        className={`text-[14px] font-normal leading-[17px] ${isSelected ? 'text-[#945C2D]' : 'text-[#FFF9F1]'
-                          }`}
-                      >
-                        {item}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
+                {skinTypeOptions.map((item) => (
+                  <GlassButton
+                    key={item}
+                    label={item}
+                    selected={skinType === item}
+                    onPress={() => setSkinType(item)}
+                  />
+                ))}
               </View>
             </View>
           </View>

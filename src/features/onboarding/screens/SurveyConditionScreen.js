@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import BottomButton from '../../../shared/components/BottomButton';
+import InputGlass from '../../../shared/components/InputGlass';
 
 const FIGMA_WIDTH = 360;
 const FIGMA_HEIGHT = 800;
@@ -52,18 +53,27 @@ export default function SurveyConditionScreen({ onNext, surveyData, updateSurvey
                 key={opt}
                 activeOpacity={0.85}
                 onPress={() => setSelected(opt)}
-                style={{
-                  height: scaleH(50),
-                  marginTop: index > 0 ? scaleH(20) : 0,
-                  paddingLeft: scaleW(20),
-                }}
-                className={"w-full rounded-[16px] justify-center " + (isSelected ? 'bg-[#FFF9F1]' : 'bg-white/10')}
+                style={{ marginTop: index > 0 ? scaleH(20) : 0 }}
               >
-                <Text
-                  className={"text-[16px] font-medium leading-[19px] " + (isSelected ? 'text-[#945C2D]' : 'text-[#FFF9F1]')}
-                >
-                  {opt}
-                </Text>
+                {isSelected ? (
+                  <View
+                    style={{ height: scaleH(50), paddingLeft: scaleW(20) }}
+                    className="w-full rounded-[16px] justify-center bg-[#FFF9F1]"
+                  >
+                    <Text className="text-[16px] font-medium leading-[19px] text-[#945C2D]">
+                      {opt}
+                    </Text>
+                  </View>
+                ) : (
+                  <InputGlass
+                    glass="large"
+                    style={{ width: scaleW(312), height: scaleH(50), paddingLeft: scaleW(20) }}
+                  >
+                    <Text className="text-[16px] font-medium leading-[19px] text-[#FFF9F1]">
+                      {opt}
+                    </Text>
+                  </InputGlass>
+                )}
               </TouchableOpacity>
             );
           })}

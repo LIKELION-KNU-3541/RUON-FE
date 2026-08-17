@@ -1,8 +1,14 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
 
 const FIGMA_WIDTH = 360;
 const FIGMA_HEIGHT = 800;
+
+const INDICATOR = {
+  1: require('../../../assets/images/glass_button/indicator1@x3.png'),
+  2: require('../../../assets/images/glass_button/indicator2@x3.png'),
+  3: require('../../../assets/images/glass_button/indicator3@x3.png'),
+};
 
 /**
  * Common Bottom Action / Confirm Button Component
@@ -40,22 +46,13 @@ export default function BottomButton({
         </TouchableOpacity>
       )}
 
-      {/* Optional Pagination Indicator Dots */}
+      {/* Optional Pagination Indicator */}
       {activeDot && (
-        <View className="flex-row justify-center items-center gap-2 mb-4">
-          <View
-            className={`h-[8px] rounded-full ${activeDot === 1 ? 'w-[32px] bg-[#FFF9F1]' : 'w-[8px] bg-[#D3C7B7]/40'
-              }`}
-          />
-          <View
-            className={`h-[8px] rounded-full ${activeDot === 2 ? 'w-[32px] bg-[#FFF9F1]' : 'w-[8px] bg-[#D3C7B7]/40'
-              }`}
-          />
-          <View
-            className={`h-[8px] rounded-full ${activeDot === 3 ? 'w-[32px] bg-[#FFF9F1]' : 'w-[8px] bg-[#D3C7B7]/40'
-              }`}
-          />
-        </View>
+        <Image
+          source={INDICATOR[activeDot]}
+          style={{ width: scaleW(64), height: scaleH(8), marginBottom: scaleH(28) }}
+          resizeMode="stretch"
+        />
       )}
 
       {/* Main Action Button */}
