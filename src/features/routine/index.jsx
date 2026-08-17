@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ConditionPage from '../main_home/pages/ConditionPage';
+import ConditionScreen from '../main_home/screens/ConditionScreen';
 import RoutineScreen from './screens/RoutineScreen';
 import RoutineStandardScreen from './screens/RoutineStandardScreen';
 import TomorrowRoutineScreen from './screens/TomorrowRoutineScreen';
@@ -16,7 +16,7 @@ export default function RoutineRouter({ conditions = [], availableTime = null, o
 
   if (screen === 'condition') {
     return (
-      <ConditionPage
+      <ConditionScreen
         initialConditions={conditions}
         initialTime={availableTime}
         onBack={() => setScreen(conditionReturnScreen)}

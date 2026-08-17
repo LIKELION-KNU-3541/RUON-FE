@@ -24,7 +24,7 @@ const CONDITION_ROWS = [
 const TIME_OPTIONS = ['30초 퀵루틴', '기본 루틴', '여유 루틴'];
 const backgroundSource = require('../../../../assets/images/TodayCheckIn-bg.png');
 
-export default function ConditionPage({ initialConditions = [], initialTime = null, onBack, onApply }) {
+export default function ConditionScreen({ initialConditions = [], initialTime = null, onBack, onApply }) {
   const { scale, moderateScale } = useResponsiveScale();
   const [conditions, setConditions] = useState(initialConditions);
   const [time, setTime] = useState(initialTime);

@@ -43,7 +43,7 @@ export default function ConditionCard({ options = [] }) {
         ))}
         {hiddenCount > 0 && (
           <TouchableOpacity className="h-[33px] items-center justify-center rounded-full bg-ruon-main1 p-[10px]" activeOpacity={0.7}>
-            <Text className="font-pretendard-medium text-[11px] text-white">외 ({hiddenCount})개</Text>
+            <Text className="font-pretendard-medium text-[11px] text-white">외 {hiddenCount}개</Text>
           </TouchableOpacity>
         )}
       </View>

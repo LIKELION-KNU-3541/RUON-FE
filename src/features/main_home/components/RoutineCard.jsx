@@ -11,7 +11,12 @@ export default function RoutineCard({ icon, title, description }) {
     <TouchableOpacity className="flex-1 bg-white" style={{ borderRadius: scale(16), paddingVertical: 24, paddingHorizontal: 20 }} activeOpacity={0.72}>
       <View className="flex-row items-center">
         <View className="mr-[10px]">
-        <Icon width={scale(20)} height={scale(20)} fill="#945C2D" />
+        <Icon
+          width={scale(20)}
+          height={scale(20)}
+          color="#945C2D"
+          fill="#945C2D"
+        />
         </View>
         <Text className="mr-[10px] font-pretendard-semibold text-ruon-main1" style={{ fontSize: moderateScale(16) }}>
           {title}

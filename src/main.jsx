@@ -5,13 +5,19 @@ import OnboardingFlow from './features/onboarding/screens/OnboardingFlow';
 
 export default function Main() {
   const [onboarded, setOnboarded] = useState(false);
+  const [surveyData, setSurveyData] = useState(null);
+
+  const completeOnboarding = (data) => {
+    setSurveyData(data);
+    setOnboarded(true);
+  };
 
   return (
     <SafeAreaProvider>
       {onboarded ? (
-        <AppRoutes />
+        <AppRoutes surveyData={surveyData} />
       ) : (
-        <OnboardingFlow onComplete={() => setOnboarded(true)} />
+        <OnboardingFlow onComplete={completeOnboarding} />
       )}
     </SafeAreaProvider>
   );

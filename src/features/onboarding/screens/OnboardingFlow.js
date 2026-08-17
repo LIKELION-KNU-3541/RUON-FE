@@ -89,7 +89,7 @@ export default function OnboardingFlow({ onComplete }) {
         {currentStep === 6 && (
           <SurveySummaryScreen
             onPrev={() => setCurrentStep(4)}
-            onComplete={onComplete}
+            onComplete={() => onComplete?.(surveyData)}
             surveyData={surveyData}
           />
         )}
