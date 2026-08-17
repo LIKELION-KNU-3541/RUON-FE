@@ -14,6 +14,7 @@ import PhotoGuideModal from '../components/PhotoGuideModal';
 import BottomNavigation from '../../../shared/components/BottomNavigation';
 import InfoBox from '../../../shared/components/InfoBox';
 import { DUMMY_PRODUCTS } from '../data/dummyData';
+import InputGlass from '../../../shared/components/InputGlass';
 import CameraIcon from '../../../../assets/icons/vanityPage_camera.svg';
 import UploadIcon from '../../../../assets/icons/vanityPage_upload.svg';
 import SummaryIcon1 from '../../../../assets/icons/vanityPage_icon1.svg';
@@ -152,13 +153,21 @@ export default function VanityPage({
                   return (
                     <TouchableOpacity
                       key={filter.key}
-                      style={active ? styles.tagActive : styles.tagInactive}
                       activeOpacity={0.8}
                       onPress={() => setActiveFilter(filter.key)}
                     >
-                      <Text style={active ? styles.tagTextActive : styles.tagTextInactive}>
-                        {filter.label}
-                      </Text>
+                      {active ? (
+                        <View style={styles.tagActive}>
+                          <Text style={styles.tagTextActive}>{filter.label}</Text>
+                        </View>
+                      ) : (
+                        <InputGlass
+                          glass={filter.key === 'all' ? 'vanity_s' : 'vanity'}
+                          style={styles.tagInactive}
+                        >
+                          <Text style={styles.tagTextInactive}>{filter.label}</Text>
+                        </InputGlass>
+                      )}
                     </TouchableOpacity>
                   );
                 })}
@@ -348,9 +357,8 @@ const styles = StyleSheet.create({
     color: '#FFF9F1',
   },
   tagInactive: {
-    backgroundColor: 'rgba(150, 92, 45, 0.1)',
-    padding: 10,
-    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tagTextInactive: {
     fontFamily: 'Pretendard-Regular',
