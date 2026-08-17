@@ -1,70 +1,44 @@
 import React, { useState } from 'react';
 import HomePage from '../features/main_home/pages/HomePage';
 import ConditionPage from '../features/main_home/pages/ConditionPage';
-import RoutinePage from '../features/routine/screens/RoutineScreen';
-import RoutineStandardScreen from '../features/routine/screens/RoutineStandardScreen';
-import TomorrowRoutineScreen from '../features/routine/screens/TomorrowRoutineScreen';
+import RoutineRouter from '../features/routine';
+import VanityRouter from '../features/vanity';
 
 export default function AppRoutes() {
-  const [screen, setScreen] = useState('home');
-  const [routineMode, setRoutineMode] = useState('morning');
+  const [activeTab, setActiveTab] = useState('home');
+  const [homeScreen, setHomeScreen] = useState('home');
   const [selectedConditions, setSelectedConditions] = useState([]);
   const [availableTime, setAvailableTime] = useState(null);
-  const [conditionReturnScreen, setConditionReturnScreen] = useState('home');
 
-  if (screen === 'condition') {
+  if (activeTab === 'vanity') {
+    return <VanityRouter onTabChange={setActiveTab} />;
+  }
+
+  if (activeTab === 'routine') {
+    return (
+      <RoutineRouter
+        conditions={selectedConditions}
+        availableTime={availableTime}
+        onConditionChange={(conditions, time) => {
+          setSelectedConditions(conditions);
+          setAvailableTime(time);
+        }}
+        onTabChange={setActiveTab}
+      />
+    );
+  }
+
+  if (homeScreen === 'condition') {
     return (
       <ConditionPage
         initialConditions={selectedConditions}
         initialTime={availableTime}
-        onBack={() => setScreen(conditionReturnScreen)}
+        onBack={() => setHomeScreen('home')}
         onApply={(conditions, time) => {
           setSelectedConditions(conditions);
           setAvailableTime(time);
-          setScreen(conditionReturnScreen);
+          setHomeScreen('home');
         }}
-      />
-    );
-  }
-
-  if (screen === 'routine') {
-    return (
-      <RoutinePage
-        mode={routineMode}
-        conditions={selectedConditions}
-        availableTime={availableTime}
-        onModeChange={setRoutineMode}
-        onOpenHome={(index) => index === 0 && setScreen('home')}
-        onOpenCondition={() => {
-          setConditionReturnScreen('routine');
-          setScreen('condition');
-        }}
-        onOpenStandard={() => setScreen('routine-standard')}
-        onOpenTomorrowRoutine={() => setScreen('tomorrow-routine')}
-      />
-    );
-  }
-
-  if (screen === 'routine-standard') {
-    return (
-      <RoutineStandardScreen
-        mode={routineMode}
-        conditions={selectedConditions}
-        availableTime={availableTime}
-        onBack={() => setScreen('routine')}
-        onOpenCondition={() => {
-          setConditionReturnScreen('routine-standard');
-          setScreen('condition');
-        }}
-      />
-    );
-  }
-
-  if (screen === 'tomorrow-routine') {
-    return (
-      <TomorrowRoutineScreen
-        mode={routineMode}
-        onBack={() => setScreen('routine')}
       />
     );
   }
@@ -72,11 +46,8 @@ export default function AppRoutes() {
   return (
     <HomePage
       conditions={selectedConditions}
-      onOpenCondition={() => {
-        setConditionReturnScreen('home');
-        setScreen('condition');
-      }}
-      onOpenRoutine={(index) => index === 1 && setScreen('routine')}
+      onOpenCondition={() => setHomeScreen('condition')}
+      onTabChange={setActiveTab}
     />
   );
 }

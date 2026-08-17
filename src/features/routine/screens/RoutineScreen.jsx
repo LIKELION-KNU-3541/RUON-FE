@@ -37,7 +37,7 @@ export default function RoutinePage({
   conditions = [],
   availableTime = null,
   onModeChange,
-  onOpenHome,
+  onTabChange,
   onOpenCondition,
   onOpenStandard,
   onOpenTomorrowRoutine,
@@ -110,7 +110,7 @@ export default function RoutinePage({
           onPress={onOpenTomorrowRoutine}
         ></RoutineRecommendation>
       </ScrollView>
-      <BottomNavigation activeIndex={1} onSelect={onOpenHome} theme={theme} mode={mode} />
+      <BottomNavigation activeIndex={1} onTabChange={onTabChange} theme={theme} mode={mode} />
       
     </SafeAreaView>
 

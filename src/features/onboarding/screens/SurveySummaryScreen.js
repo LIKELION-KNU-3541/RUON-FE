@@ -8,9 +8,8 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { SvgXml } from 'react-native-svg';
 import BottomButton from '../../../shared/components/BottomButton';
-import { checkSvgXml } from '../../../../assets/images/check_svg';
+import InputGlass from '../../../shared/components/InputGlass';
 
 // PNG line art images are exported at @3x resolution
 // 4p5p6p_top_circle.png: 612x762, 204x254
@@ -19,7 +18,7 @@ import { checkSvgXml } from '../../../../assets/images/check_svg';
 const FIGMA_WIDTH = 360;
 const FIGMA_HEIGHT = 800;
 
-export default function SurveySummaryScreen({ onPrev, surveyData }) {
+export default function SurveySummaryScreen({ onPrev, onComplete, surveyData }) {
   const condition = surveyData?.condition || '임신중';
   const weeks = surveyData?.weeks || '24주';
   const concerns = surveyData?.concerns?.join(' · ') || '건조함· 민감함· 가려움';
@@ -55,60 +54,80 @@ export default function SurveySummaryScreen({ onPrev, surveyData }) {
             {"입력해주신 정보를 바탕으로\n지금의 나에게 맞는 케어를 시작해볼게요."}</Text>
         </View>
 
-        {/* 4. Exact check.svg Vector Asset (top: 210px, 96px x 96px) */}
-        <View style={{ position: 'absolute', left: 0, right: 0, top: scaleH(210) }} className="items-center justify-center z-10">
-          <SvgXml xml={checkSvgXml} width={scaleW(96)} height={scaleW(96)} />
+        {/* 4. Glass Check Asset — 헤더 하단(176)과 표 상단(376) 사이 중앙 정렬, 136px x 136px */}
+        <View style={{ position: 'absolute', left: 0, right: 0, top: scaleH(208) }} className="items-center justify-center z-10">
+          <Image
+            source={require('../../../../assets/images/glass_button/glass_check@x3.png')}
+            style={{ width: scaleW(136), height: scaleW(136) }}
+            resizeMode="contain"
+          />
         </View>
 
-        {/* 5. Summary Details Card (top: 335px, height: 228px -> bottom: 563px) */}
-        <View
+        {/* 5. Summary Details Card (top: 376px, height: 228px) */}
+        <InputGlass
+          glass="table"
           style={{
             position: 'absolute',
             left: scaleW(24),
-            right: scaleW(24),
-            top: scaleH(335),
+            top: scaleH(376),
+            width: scaleW(312),
             height: scaleH(228),
+            paddingTop: scaleH(20),
+            paddingBottom: scaleH(20),
+            paddingLeft: scaleW(16),
+            paddingRight: scaleW(13),
           }}
-          className="bg-white/10 rounded-[20px] border border-white/20 px-5 py-2 z-10"
+          className="z-10"
         >
-          {/* Row 1: 현재 상태 */}
-          <View style={{ borderBottomWidth: 0.8, borderBottomColor: 'rgba(255, 249, 241, 0.2)' }} className="flex-1 flex-row justify-between items-center px-3">
-            <Text className="text-[#FFF9F1] text-[14px] font-semibold">현재 상태</Text>
-            <Text className="text-[#FFF9F1] text-[14px] font-normal">{condition}</Text>
-          </View>
+          <View style={{ flex: 1, gap: scaleH(20) }}>
+            {/* Row 1: 현재 상태 */}
+            <View style={{ gap: scaleH(20) }}>
+              <View className="flex-row justify-between items-center">
+                <Text className="text-white text-[14px] leading-[17px] font-semibold">현재 상태</Text>
+                <Text className="text-white text-[14px] leading-[17px] font-normal">{condition}</Text>
+              </View>
+              <View style={{ height: 0, borderBottomWidth: 0.5, borderBottomColor: '#F7C79E' }} />
+            </View>
 
-          {/* Row 2: 임신 주차 */}
-          <View style={{ borderBottomWidth: 0.8, borderBottomColor: 'rgba(255, 249, 241, 0.2)' }} className="flex-1 flex-row justify-between items-center px-3">
-            <Text className="text-[#FFF9F1] text-[14px] font-semibold">임신 주차</Text>
-            <Text className="text-[#FFF9F1] text-[14px] font-normal">{weeks}</Text>
-          </View>
+            {/* Row 2: 임신 주차 */}
+            <View style={{ gap: scaleH(20) }}>
+              <View className="flex-row justify-between items-center">
+                <Text className="text-white text-[14px] leading-[17px] font-semibold">임신 주차</Text>
+                <Text className="text-white text-[14px] leading-[17px] font-normal">{weeks}</Text>
+              </View>
+              <View style={{ height: 0, borderBottomWidth: 0.5, borderBottomColor: '#F7C79E' }} />
+            </View>
 
-          {/* Row 3: 피부 고민 */}
-          <View style={{ borderBottomWidth: 0.8, borderBottomColor: 'rgba(255, 249, 241, 0.2)' }} className="flex-1 flex-row justify-between items-center px-3">
-            <Text className="text-[#FFF9F1] text-[14px] font-semibold">피부 고민</Text>
-            <Text className="text-[#FFF9F1] text-[14px] font-normal max-w-[180px] text-right" numberOfLines={1}>
-              {concerns}
-            </Text>
-          </View>
+            {/* Row 3: 피부 고민 */}
+            <View style={{ gap: scaleH(20) }}>
+              <View className="flex-row justify-between items-center">
+                <Text className="text-white text-[14px] leading-[17px] font-semibold">피부 고민</Text>
+                <Text className="text-white text-[14px] leading-[17px] font-normal max-w-[180px]" numberOfLines={1}>
+                  {concerns}
+                </Text>
+              </View>
+              <View style={{ height: 0, borderBottomWidth: 0.5, borderBottomColor: '#F7C79E' }} />
+            </View>
 
-          {/* Row 4: 피부 타입*/}
-          <View className="flex-1 flex-row justify-between items-center px-3">
-            <Text className="text-[#FFF9F1] text-[14px] font-semibold">피부 타입</Text>
-            <Text className="text-[#FFF9F1] text-[14px] font-normal">{skinType}</Text>
+            {/* Row 4: 피부 타입 (구분선 없음) */}
+            <View className="flex-row justify-between items-center">
+              <Text className="text-white text-[14px] leading-[17px] font-semibold">피부 타입</Text>
+              <Text className="text-white text-[14px] leading-[17px] font-normal">{skinType}</Text>
+            </View>
           </View>
-        </View>
+        </InputGlass>
 
-        {/* 6. Previous Step Link (1:1 Midpoint: top: 623px) */}
-        <View style={{ position: 'absolute', left: 0, right: 0, top: scaleH(623) }} className="items-center justify-center z-10">
+        {/* 6. Previous Step Link (top: 634px) */}
+        <View style={{ position: 'absolute', left: 0, right: 0, top: scaleH(634) }} className="items-center justify-center z-10">
           <TouchableOpacity onPress={onPrev} activeOpacity={0.7}>
-            <Text className="text-[#FFF9F1]/80 text-[14px] font-light underline">이전 단계 수정하기</Text>
+            <Text className="text-[#FFF9F1] text-[14px] leading-[26px] font-light underline">이전 단계 수정하기</Text>
           </TouchableOpacity>
         </View>
 
         {/* 7. Reusable Bottom Action Button */}
         <BottomButton
           title="시작하기"
-          onPress={() => alert('맞춤 루틴 시작!')}
+          onPress={onComplete}
         />
       </ImageBackground>
     </View>

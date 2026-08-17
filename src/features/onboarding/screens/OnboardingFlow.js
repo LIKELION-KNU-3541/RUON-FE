@@ -9,7 +9,7 @@ import SurveySummaryScreen from './SurveySummaryScreen';
 
 const SHOW_DEMO_NAV = false;
 
-export default function OnboardingFlow() {
+export default function OnboardingFlow({ onComplete }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [surveyData, setSurveyData] = useState({
     condition: '임신 중',
@@ -89,6 +89,7 @@ export default function OnboardingFlow() {
         {currentStep === 6 && (
           <SurveySummaryScreen
             onPrev={() => setCurrentStep(4)}
+            onComplete={onComplete}
             surveyData={surveyData}
           />
         )}

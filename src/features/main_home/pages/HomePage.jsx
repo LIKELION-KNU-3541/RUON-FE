@@ -14,7 +14,7 @@ import RoutineCard from '../components/RoutineCard';
 
 const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
 
-export default function HomePage({ conditions = [], onOpenCondition, onOpenRoutine }) {
+export default function HomePage({ conditions = [], onOpenCondition, onTabChange }) {
   const { scale, moderateScale } = useResponsiveScale();
   return (
     <ImageBackground source={backgroundSource} resizeMode="cover" style={{ flex: 1 }}>
@@ -37,7 +37,7 @@ export default function HomePage({ conditions = [], onOpenCondition, onOpenRouti
           <View className="-mx-[24px] mt-[28px] h-[6px] bg-[#D8C0AD]" />
           <InfoBox />
         </ScrollView>
-        <BottomNavigation activeIndex={0} onSelect={onOpenRoutine} />
+        <BottomNavigation activeIndex={0} onTabChange={onTabChange} />
       </SafeAreaView>
     </ImageBackground>
   );
