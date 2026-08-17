@@ -4,7 +4,14 @@ import RoutineScreen from './screens/RoutineScreen';
 import RoutineStandardScreen from './screens/RoutineStandardScreen';
 import TomorrowRoutineScreen from './screens/TomorrowRoutineScreen';
 
-export default function RoutineRouter({ conditions = [], availableTime = null, onConditionChange, onTabChange }) {
+export default function RoutineRouter({
+  conditions = [],
+  availableTime = null,
+  reactions = {},
+  onReactionChange,
+  onConditionChange,
+  onTabChange,
+}) {
   const [screen, setScreen] = useState('main');
   const [mode, setMode] = useState('morning');
   const [conditionReturnScreen, setConditionReturnScreen] = useState('main');
@@ -49,6 +56,8 @@ export default function RoutineRouter({ conditions = [], availableTime = null, o
       mode={mode}
       conditions={conditions}
       availableTime={availableTime}
+      selectedReaction={reactions[mode] ?? null}
+      onReactionChange={(selectedIndex) => onReactionChange?.(mode, selectedIndex)}
       onModeChange={setMode}
       onTabChange={onTabChange}
       onOpenCondition={() => openCondition('main')}
