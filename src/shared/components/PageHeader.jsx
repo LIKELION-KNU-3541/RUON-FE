@@ -3,7 +3,7 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import Arrow from '../../../assets/icons/Larrow.svg';
 import { useResponsiveScale } from '../utils/responsive';
 
-export default function PageHeader({ title, onBack, color = '#FFF9F1' }) {
+export default function PageHeader({ theme, title, onBack, color = '#945C2D' }) {
   const { moderateScale } = useResponsiveScale();
 
   return (

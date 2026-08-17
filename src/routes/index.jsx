@@ -1,27 +1,43 @@
 import React, { useState } from 'react';
 import HomePage from '../features/main_home/pages/HomePage';
 import ConditionPage from '../features/main_home/pages/ConditionPage';
+import RoutineRouter from '../features/routine';
 import VanityRouter from '../features/vanity';
 
 export default function AppRoutes() {
-  const [activeTab, setActiveTab] = useState('home'); // 'home' | 'vanity'
-  const [screen, setScreen] = useState('home');       // home 탭 내부 화면
-  const [selectedConditions, setSelectedConditions] = useState(['민감해요', '열감이 있어요']);
+  const [activeTab, setActiveTab] = useState('home');
+  const [homeScreen, setHomeScreen] = useState('home');
+  const [selectedConditions, setSelectedConditions] = useState([]);
+  const [availableTime, setAvailableTime] = useState(null);
 
-  // 화장대 탭
   if (activeTab === 'vanity') {
     return <VanityRouter onTabChange={setActiveTab} />;
   }
 
-  // 홈 탭 내부 흐름
-  if (screen === 'condition') {
+  if (activeTab === 'routine') {
+    return (
+      <RoutineRouter
+        conditions={selectedConditions}
+        availableTime={availableTime}
+        onConditionChange={(conditions, time) => {
+          setSelectedConditions(conditions);
+          setAvailableTime(time);
+        }}
+        onTabChange={setActiveTab}
+      />
+    );
+  }
+
+  if (homeScreen === 'condition') {
     return (
       <ConditionPage
         initialConditions={selectedConditions}
-        onBack={() => setScreen('home')}
-        onApply={(conditions) => {
+        initialTime={availableTime}
+        onBack={() => setHomeScreen('home')}
+        onApply={(conditions, time) => {
           setSelectedConditions(conditions);
-          setScreen('home');
+          setAvailableTime(time);
+          setHomeScreen('home');
         }}
       />
     );
@@ -30,7 +46,7 @@ export default function AppRoutes() {
   return (
     <HomePage
       conditions={selectedConditions}
-      onOpenCondition={() => setScreen('condition')}
+      onOpenCondition={() => setHomeScreen('condition')}
       onTabChange={setActiveTab}
     />
   );
