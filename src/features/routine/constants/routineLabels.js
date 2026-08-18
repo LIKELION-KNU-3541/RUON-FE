@@ -11,11 +11,19 @@ export const SKIN_FEELING_LABELS = {
   CUSTOM: '직접 작성',
 };
 
+export const SKIN_FEELING_VALUES = Object.fromEntries(
+  Object.entries(SKIN_FEELING_LABELS).map(([value, label]) => [label, value]),
+);
+
 export const ROUTINE_TIME_LABELS = {
   LOW: '30초 퀵루틴',
   MEDIUM: '기본 루틴',
   HIGH: '여유 루틴',
 };
+
+export const ROUTINE_TIME_VALUES = Object.fromEntries(
+  Object.entries(ROUTINE_TIME_LABELS).map(([value, label]) => [label, value]),
+);
 
 export const ROUTINE_CATEGORY_LABELS = {
   CLEANSE: '순한 세안',

@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ConditionScreen from '../main_home/screens/ConditionScreen';
 import RoutineScreen from './screens/RoutineScreen';
 import RoutineStandardScreen from './screens/RoutineStandardScreen';
 import TomorrowRoutineScreen from './screens/TomorrowRoutineScreen';
+import {
+  getTodayRoutine,
+  toRoutineTimeLabel,
+  toSkinFeelingLabel,
+} from './api/routineApi';
 
 export default function RoutineRouter({
   conditions = [],
@@ -11,10 +16,31 @@ export default function RoutineRouter({
   onReactionChange,
   onConditionChange,
   onTabChange,
+  userId = process.env.EXPO_PUBLIC_USER_ID ?? 1,
 }) {
   const [screen, setScreen] = useState('main');
   const [mode, setMode] = useState('morning');
   const [conditionReturnScreen, setConditionReturnScreen] = useState('main');
+  const [todayRoutine, setTodayRoutine] = useState(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    getTodayRoutine(userId, { signal: controller.signal })
+      .then(setTodayRoutine)
+      .catch((requestError) => {
+        if (requestError.name !== 'CanceledError' && requestError.code !== 'ERR_CANCELED') {
+          setTodayRoutine(null);
+        }
+      });
+
+    return () => controller.abort();
+  }, [userId]);
+
+  const displayedConditions = todayRoutine?.skinFeelings?.map(toSkinFeelingLabel) ?? conditions;
+  const displayedAvailableTime = todayRoutine?.routineTimeAvailable
+    ? toRoutineTimeLabel(todayRoutine.routineTimeAvailable)
+    : availableTime;
 
   const openCondition = (returnScreen) => {
     setConditionReturnScreen(returnScreen);
@@ -24,10 +50,13 @@ export default function RoutineRouter({
   if (screen === 'condition') {
     return (
       <ConditionScreen
-        initialConditions={conditions}
-        initialTime={availableTime}
+        initialConditions={displayedConditions}
+        initialTime={displayedAvailableTime}
+        initialCustomFeeling={todayRoutine?.customFeeling ?? ''}
+        userId={userId}
         onBack={() => setScreen(conditionReturnScreen)}
-        onApply={(nextConditions, nextTime) => {
+        onApply={(nextConditions, nextTime, nextCustomFeeling, routine) => {
+          setTodayRoutine(routine);
           onConditionChange?.(nextConditions, nextTime);
           setScreen(conditionReturnScreen);
         }}
@@ -39,8 +68,9 @@ export default function RoutineRouter({
     return (
       <RoutineStandardScreen
         mode={mode}
-        conditions={conditions}
-        availableTime={availableTime}
+        conditions={displayedConditions}
+        availableTime={displayedAvailableTime}
+        userId={userId}
         onBack={() => setScreen('main')}
         onOpenCondition={() => openCondition('standard')}
       />
@@ -54,8 +84,8 @@ export default function RoutineRouter({
   return (
     <RoutineScreen
       mode={mode}
-      conditions={conditions}
-      availableTime={availableTime}
+      conditions={displayedConditions}
+      availableTime={displayedAvailableTime}
       selectedReaction={reactions[mode] ?? null}
       onReactionChange={(selectedIndex) => onReactionChange?.(mode, selectedIndex)}
       onModeChange={setMode}

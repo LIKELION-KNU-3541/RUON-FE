@@ -6,10 +6,35 @@ export async function getTodayRoutine(userId, { signal } = {}) {
   if (!Number.isSafeInteger(numericUserId) || numericUserId <= 0) {
     throw new Error('올바른 사용자 ID가 필요해요.');
   }
-
   const response = await api.get('/api/v1/routines/today', {
     params: { userId: numericUserId },
     signal,
+  });
+  return response.data.data;
+}
+
+export async function createRoutineByCondition({
+  userId,
+  skinFeelings,
+  customFeeling,
+  routineTimeAvailable,
+}) {
+  const numericUserId = Number(userId);
+  if (!Number.isSafeInteger(numericUserId) || numericUserId <= 0) {
+    throw new Error('올바른 사용자 ID가 필요해요.');
+  }
+  if (!Array.isArray(skinFeelings) || skinFeelings.length === 0 || !routineTimeAvailable) {
+    throw new Error('피부 컨디션과 사용 가능한 시간을 선택해주세요.');
+  }
+  if (skinFeelings.includes('CUSTOM') && !customFeeling?.trim()) {
+    throw new Error('피부 느낌을 직접 입력해주세요.');
+  }
+
+  const response = await api.post('/api/v1/routines/condition', {
+    userId: numericUserId,
+    skinFeelings,
+    ...(skinFeelings.includes('CUSTOM') ? { customFeeling: customFeeling.trim() } : {}),
+    routineTimeAvailable,
   });
   return response.data.data;
 }

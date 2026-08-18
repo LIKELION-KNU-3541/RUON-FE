@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { BackHandler, ImageBackground, ScrollView, StatusBar, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, BackHandler, ImageBackground, ScrollView, StatusBar, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import ConditionButton from '../../../shared/components/ConditionButton';
 import PageHeader from '../../../shared/components/PageHeader';
 import { useResponsiveScale } from '../../../shared/utils/responsive';
 import PencilIcon from '../../../../assets/icons/pencil-icon.svg';
+import { createRoutineByCondition } from '../../routine/api/routineApi';
+import {
+  ROUTINE_TIME_VALUES,
+  SKIN_FEELING_VALUES,
+} from '../../routine/constants/routineLabels';
 
 const CONDITIONS = [
   '건조해요', '민감해요', '가려워요',
@@ -24,10 +29,20 @@ const CONDITION_ROWS = [
 const TIME_OPTIONS = ['30초 퀵루틴', '기본 루틴', '여유 루틴'];
 const backgroundSource = require('../../../../assets/images/TodayCheckIn-bg.png');
 
-export default function ConditionScreen({ initialConditions = [], initialTime = null, onBack, onApply }) {
+export default function ConditionScreen({
+  initialConditions = [],
+  initialTime = null,
+  initialCustomFeeling = '',
+  userId = process.env.EXPO_PUBLIC_USER_ID ?? 1,
+  onBack,
+  onApply,
+}) {
   const { scale, moderateScale } = useResponsiveScale();
   const [conditions, setConditions] = useState(initialConditions);
   const [time, setTime] = useState(initialTime);
+  const [customFeeling, setCustomFeeling] = useState(initialCustomFeeling);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -38,11 +53,44 @@ export default function ConditionScreen({ initialConditions = [], initialTime = 
   }, [onBack]);
 
   const toggleCondition = (condition) => {
+    setError(null);
     setConditions((current) =>
       current.includes(condition)
         ? current.filter((item) => item !== condition)
         : [...current, condition],
     );
+  };
+
+  const handleApply = async () => {
+    const skinFeelings = conditions.map(
+      (condition) => SKIN_FEELING_VALUES[condition] ?? condition,
+    );
+    const routineTimeAvailable = ROUTINE_TIME_VALUES[time] ?? time;
+
+    if (skinFeelings.length === 0 || !routineTimeAvailable) {
+      setError('피부 컨디션과 사용 가능한 시간을 선택해주세요.');
+      return;
+    }
+    if (skinFeelings.includes('CUSTOM') && !customFeeling.trim()) {
+      setError('피부 느낌을 직접 입력해주세요.');
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+    try {
+      const routine = await createRoutineByCondition({
+        userId,
+        skinFeelings,
+        customFeeling,
+        routineTimeAvailable,
+      });
+      onApply?.(conditions, time, customFeeling, routine);
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -72,11 +120,31 @@ export default function ConditionScreen({ initialConditions = [], initialTime = 
                   />
                 ))}
                 {rowIndex === CONDITION_ROWS.length - 1 && (
-                  <ConditionButton label="직접 작성" prefix={<PencilIcon />} />
+                  <ConditionButton
+                    label="직접 작성"
+                    prefix={<PencilIcon />}
+                    selected={conditions.includes('직접 작성')}
+                    onPress={() => toggleCondition('직접 작성')}
+                  />
                 )}
               </View>
             ))}
           </View>
+
+          {conditions.includes('직접 작성') && (
+            <TextInput
+              className="mt-[18px] min-h-[48px] rounded-[16px] border border-white/50 bg-white/15 px-[16px] font-pretendard-medium text-[#FFF9F1]"
+              value={customFeeling}
+              onChangeText={(value) => {
+                setCustomFeeling(value);
+                setError(null);
+              }}
+              placeholder="피부 느낌을 입력해주세요"
+              placeholderTextColor="rgba(255,249,241,0.65)"
+              maxLength={100}
+              editable={!submitting}
+            />
+          )}
 
           <Text className="mt-[32px] text-center font-pretendard-semibold color-ruon-sub2" style={{ fontSize: moderateScale(17) }}>
             오늘 사용 가능한 시간
@@ -90,7 +158,10 @@ export default function ConditionScreen({ initialConditions = [], initialTime = 
                   key={option}
                   label={option}
                   selected={selected}
-                  onPress={() => setTime(option)}
+                  onPress={() => {
+                    setTime(option);
+                    setError(null);
+                  }}
                 />
               );
             })}
@@ -107,14 +178,25 @@ export default function ConditionScreen({ initialConditions = [], initialTime = 
             컨디션을 반영해{`\n`}오늘의 루틴을 조정해드릴게요
           </Text>
 
+          {error && (
+            <Text className="mt-[16px] text-center font-pretendard-medium text-[#FFF9F1]" style={{ fontSize: moderateScale(13) }}>
+              {error}
+            </Text>
+          )}
+
           <TouchableOpacity
             className="mt-[31px] h-[61px] items-center justify-center rounded-[20px] bg-[#FFF9F1]"
             activeOpacity={0.8}
-            onPress={() => onApply(conditions, time)}
+            disabled={submitting}
+            onPress={handleApply}
           >
-            <Text className="font-pretendard-semibold text-[#A25C2C]" style={{ fontSize: moderateScale(16) }}>
-              반영하기
-            </Text>
+            {submitting ? (
+              <ActivityIndicator color="#A25C2C" />
+            ) : (
+              <Text className="font-pretendard-semibold text-[#A25C2C]" style={{ fontSize: moderateScale(16) }}>
+                반영하기
+              </Text>
+            )}
           </TouchableOpacity>
         </ScrollView>
       </SafeAreaView>
