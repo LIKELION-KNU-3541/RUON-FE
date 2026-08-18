@@ -1,6 +1,7 @@
 import React from 'react';
 import { Image, ImageBackground, Pressable, Text, View } from 'react-native';
 import { useResponsiveScale } from '../../../shared/utils/responsive';
+import { ROUTINE_CATEGORY_LABELS } from '../constants/routineLabels';
 import RightArrow from '../../../../assets/icons/Rarrow.svg';
 
 const eveningCardBackground = require('../../../../assets/images/RoutineProduct-bg.png');
@@ -9,22 +10,25 @@ const eveningNumberBackground = require('../../../../assets/images/RoutineProduc
 export default function RoutineProduct({ product, index, theme, onPress }) {
   const { scale, moderateScale } = useResponsiveScale();
   const stepNumber = String(index + 1).padStart(2, '0');
-  const isRecommended = product.isRecommended ?? product.recommended ?? false;
+  const productHeading = ROUTINE_CATEGORY_LABELS[product.action]
+    ?? product.category
+    ?? product.brandName
+    ?? '';
   const evening = theme?.screenBackground === '#9A5B2C';
-  const showEveningImage = evening && !isRecommended;
+  const showEveningImage = evening;
 
   return (
     <Pressable
       className="overflow-hidden rounded-[16px] border"
       style={{
-        backgroundColor: isRecommended ? theme.recommendedCard : showEveningImage ? 'transparent' : theme.card,
-        borderColor: isRecommended ? theme.recommendedBorder : showEveningImage ? 'transparent' : theme.border,
+        backgroundColor: showEveningImage ? 'transparent' : theme.card,
+        borderColor: showEveningImage ? 'transparent' : theme.border,
         overflow: showEveningImage ? 'visible' : 'hidden',
         width: '100%',
         alignSelf: 'stretch',
       }}
       accessibilityRole="button"
-      accessibilityLabel={`${stepNumber}단계 ${product.category}, ${product.productName}`}
+      accessibilityLabel={`${stepNumber}단계 ${productHeading}, ${product.productName}`}
       onPress={() => onPress?.(product, index)}
     >
       <ImageBackground
@@ -39,15 +43,13 @@ export default function RoutineProduct({ product, index, theme, onPress }) {
             resizeMode="stretch"
             className="h-10 w-10 items-center justify-center rounded-full"
             style={{
-              backgroundColor: isRecommended ? theme.recommendedNumber : showEveningImage ? 'transparent' : theme.number,
-              borderWidth: evening && !isRecommended && !showEveningImage ? 1 : 0,
-              borderColor: evening && !isRecommended && !showEveningImage ? 'rgba(255,249,241,0.42)' : 'transparent',
+              backgroundColor: showEveningImage ? 'transparent' : theme.number,
             }}
           >
             <Text
               className="font-pretendard-semibold"
               style={{
-                color: isRecommended ? theme.recommendedNumberText : '#FFF9F1',
+                color: '#FFF9F1',
                 fontSize: moderateScale(15),
               }}
             >
@@ -66,24 +68,16 @@ export default function RoutineProduct({ product, index, theme, onPress }) {
             <View className="flex-1 pr-[12px]">
               <View className="flex-row items-center" style={{ gap: scale(7) }}>
                 <Text className="font-pretendard-semibold" style={{ color: theme.text, fontSize: moderateScale(16) }}>
-                  {product.category}
+                  {productHeading}
                 </Text>
-                {(isRecommended || product.fromVanity) && (
-                  <View
-                    className="rounded-[7px] px-[6px] py-[5px]"
-                    style={{ backgroundColor: isRecommended ? theme.recommendedBadge : '#E1F7D6' }}
+                <View className="rounded-[7px] bg-[#E1F7D6] px-[6px] py-[5px]">
+                  <Text
+                    className="font-pretendard-semibold text-[#63AB63]"
+                    style={{ fontSize: moderateScale(6) }}
                   >
-                    <Text
-                      className="font-pretendard-semibold"
-                      style={{
-                        color: isRecommended ? theme.recommendedBadgeText : '#63AB63',
-                        fontSize: moderateScale(6),
-                      }}
-                    >
-                      {isRecommended ? '추천' : '내 화장대'}
-                    </Text>
-                  </View>
-                )}
+                    내 화장대
+                  </Text>
+                </View>
               </View>
               <Text
                 className="mt-[5px] font-pretendard-semibold"
