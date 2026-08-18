@@ -39,6 +39,23 @@ export async function createRoutineByCondition({
   return response.data.data;
 }
 
+export async function submitRoutineReaction(routineId, score) {
+  const numericRoutineId = Number(routineId);
+  const numericScore = Number(score);
+
+  if (!Number.isSafeInteger(numericRoutineId) || numericRoutineId <= 0) {
+    throw new Error('반응을 기록할 루틴 정보가 없어요.');
+  }
+  if (!Number.isInteger(numericScore) || numericScore < 1 || numericScore > 5) {
+    throw new Error('반응 점수는 1부터 5까지 선택해주세요.');
+  }
+
+  const response = await api.post(`/api/v1/routines/${numericRoutineId}/reaction`, {
+    score: numericScore,
+  });
+  return response.data.data;
+}
+
 export function toSkinFeelingLabel(skinFeeling) {
   return SKIN_FEELING_LABELS[skinFeeling] ?? skinFeeling;
 }
