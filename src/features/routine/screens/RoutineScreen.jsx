@@ -38,8 +38,6 @@ export default function RoutinePage({
   availableTime = null,
   selectedReaction = null,
   onReactionChange,
-  reactionSubmitting = false,
-  reactionError = null,
   onModeChange,
   onTabChange,
   onOpenCondition,
@@ -106,8 +104,6 @@ export default function RoutinePage({
           theme={theme}
           selectedIndex={selectedReaction}
           onSelect={onReactionChange}
-          submitting={reactionSubmitting}
-          error={reactionError}
         ></RoutineReactionCard>
       
         <View className="mt-[30px] mb-[10px] flex-row gap-[10px]">

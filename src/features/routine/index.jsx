@@ -5,7 +5,6 @@ import RoutineStandardScreen from './screens/RoutineStandardScreen';
 import TomorrowRoutineScreen from './screens/TomorrowRoutineScreen';
 import {
   getTodayRoutine,
-  submitRoutineReaction,
   toRoutineTimeLabel,
   toSkinFeelingLabel,
 } from './api/routineApi';
@@ -23,8 +22,6 @@ export default function RoutineRouter({
   const [mode, setMode] = useState('morning');
   const [conditionReturnScreen, setConditionReturnScreen] = useState('main');
   const [todayRoutine, setTodayRoutine] = useState(null);
-  const [reactionSubmitting, setReactionSubmitting] = useState(false);
-  const [reactionError, setReactionError] = useState(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -48,22 +45,6 @@ export default function RoutineRouter({
   const openCondition = (returnScreen) => {
     setConditionReturnScreen(returnScreen);
     setScreen('condition');
-  };
-
-  const handleReactionChange = async (selectedIndex) => {
-    const score = selectedIndex + 1;
-
-    setReactionSubmitting(true);
-    setReactionError(null);
-    try {
-      const updatedRoutine = await submitRoutineReaction(todayRoutine?.routineId, score);
-      setTodayRoutine(updatedRoutine);
-      onReactionChange?.(mode, selectedIndex);
-    } catch (requestError) {
-      setReactionError(requestError.message);
-    } finally {
-      setReactionSubmitting(false);
-    }
   };
 
   if (screen === 'condition') {
@@ -105,12 +86,8 @@ export default function RoutineRouter({
       mode={mode}
       conditions={displayedConditions}
       availableTime={displayedAvailableTime}
-      selectedReaction={todayRoutine?.reactionScore
-        ? todayRoutine.reactionScore - 1
-        : reactions[mode] ?? null}
-      onReactionChange={handleReactionChange}
-      reactionSubmitting={reactionSubmitting}
-      reactionError={reactionError}
+      selectedReaction={reactions[mode] ?? null}
+      onReactionChange={(selectedIndex) => onReactionChange?.(mode, selectedIndex)}
       onModeChange={setMode}
       onTabChange={onTabChange}
       onOpenCondition={() => openCondition('main')}
