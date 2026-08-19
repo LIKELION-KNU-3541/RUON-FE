@@ -6,6 +6,7 @@ import TomorrowRoutineScreen from './screens/TomorrowRoutineScreen';
 import {
   getTodayRoutine,
   getTomorrowRoutine,
+  submitRoutineReaction,
   toRoutineTimeLabel,
   toSkinFeelingLabel,
 } from './api/routineApi';
@@ -24,6 +25,8 @@ export default function RoutineRouter({
   const [conditionReturnScreen, setConditionReturnScreen] = useState('main');
   const [todayRoutine, setTodayRoutine] = useState(null);
   const [tomorrowRoutine, setTomorrowRoutine] = useState(null);
+  const [reactionSubmitting, setReactionSubmitting] = useState(false);
+  const [reactionError, setReactionError] = useState(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -61,6 +64,31 @@ export default function RoutineRouter({
   const openCondition = (returnScreen) => {
     setConditionReturnScreen(returnScreen);
     setScreen('condition');
+  };
+
+  const handleReactionChange = async (selectedIndex) => {
+    setReactionSubmitting(true);
+    setReactionError(null);
+
+    try {
+      const updatedRoutine = await submitRoutineReaction(
+        todayRoutine?.routineId,
+        selectedIndex + 1,
+      );
+      setTodayRoutine(updatedRoutine);
+      onReactionChange?.(mode, selectedIndex);
+
+      try {
+        const updatedTomorrowRoutine = await getTomorrowRoutine();
+        setTomorrowRoutine(updatedTomorrowRoutine);
+      } catch {
+        setTomorrowRoutine(null);
+      }
+    } catch (requestError) {
+      setReactionError(requestError.message);
+    } finally {
+      setReactionSubmitting(false);
+    }
   };
 
   if (screen === 'condition') {
@@ -109,9 +137,14 @@ export default function RoutineRouter({
       mode={mode}
       conditions={displayedConditions}
       availableTime={displayedAvailableTime}
-      selectedReaction={reactions[mode] ?? null}
+      selectedReaction={todayRoutine?.reactionScore != null
+        ? todayRoutine.reactionScore - 1
+        : (reactions[mode] ?? null)}
+      todayRoutine={todayRoutine}
       tomorrowRoutine={tomorrowRoutine}
-      onReactionChange={(selectedIndex) => onReactionChange?.(mode, selectedIndex)}
+      reactionSubmitting={reactionSubmitting}
+      reactionError={reactionError}
+      onReactionChange={handleReactionChange}
       onModeChange={setMode}
       onTabChange={onTabChange}
       onOpenCondition={() => openCondition('main')}

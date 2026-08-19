@@ -19,12 +19,36 @@ const calculateDueDate = (weeks) => {
   return formatDate(dueDate);
 };
 
-export default function PregnancyCard({ surveyData }) {
+const PREGNANCY_STAGE_LABELS = {
+  PRE_PREGNANCY: '임신 준비 중',
+  PREGNANT: '임신 중',
+  POSTPARTUM: '출산 후',
+  BREASTFEEDING: '수유 중',
+};
+
+const SKIN_CONCERN_LABELS = {
+  DRYNESS: '건조함',
+  SENSITIVITY: '민감함',
+  ACNE: '트러블',
+  TROUBLE: '트러블',
+  ITCHING: '가려움',
+  PIGMENTATION: '색소침착',
+  PIGMENT: '색소침착',
+  SWELLING: '붓기',
+};
+
+export default function PregnancyCard({ surveyData, userProfile }) {
   const { scale, moderateScale } = useResponsiveScale();
-  const condition = surveyData?.condition || '임신 중';
-  const weeks = surveyData?.weeks || '';
-  const concerns = surveyData?.concerns || [];
-  const isPregnant = condition === '임신 중';
+  const condition = userProfile?.pregnancyStage
+    ? (PREGNANCY_STAGE_LABELS[userProfile.pregnancyStage] ?? userProfile.pregnancyStage)
+    : (surveyData?.condition || '임신 중');
+  const weeks = userProfile?.pregnancyWeekNum ?? surveyData?.weeks ?? '';
+  const concerns = userProfile?.skinConcerns
+    ? userProfile.skinConcerns.map((concern) => SKIN_CONCERN_LABELS[concern] ?? concern)
+    : (surveyData?.concerns || []);
+  const isPregnant = userProfile
+    ? userProfile.pregnancyStage === 'PREGNANT'
+    : condition === '임신 중';
   const weekNumber = Number.parseInt(weeks, 10);
   const title = isPregnant && Number.isFinite(weekNumber)
     ? `임신 ${weekNumber}주차`

@@ -51,7 +51,7 @@ const ITEMS = [
 ];
 
 
-export default function RoutineReactionCard({ theme, selectedIndex = null, onSelect }) {
+export default function RoutineReactionCard({ theme, selectedIndex = null, onSelect, disabled = false }) {
   const { scale, moderateScale } = useResponsiveScale();
   const evening = theme?.screenBackground === '#9A5B2C';
   const labelColor = evening ? '#AAAAAA' : '#3F3F3F';
@@ -82,7 +82,13 @@ export default function RoutineReactionCard({ theme, selectedIndex = null, onSel
             : evening ? EveningFaceIcon : MorningFaceIcon;
 
           return (
-          <Pressable className="flex-1 items-center" key={label} onPress={() => onSelect?.(index)}>
+          <Pressable
+            className="flex-1 items-center"
+            key={label}
+            disabled={disabled}
+            onPress={() => onSelect?.(index)}
+            style={{ opacity: disabled ? 0.6 : 1 }}
+          >
             <View
               className="items-center justify-center my-[12.5px]"
             >

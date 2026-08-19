@@ -47,6 +47,37 @@ export async function getTomorrowRoutine({ signal } = {}) {
   return response.data.data;
 }
 
+//루틴 반응 기록
+export async function submitRoutineReaction(routineId, score) {
+  const numericRoutineId = Number(routineId);
+  const numericScore = Number(score);
+
+  if (!Number.isSafeInteger(numericRoutineId) || numericRoutineId <= 0) {
+    throw new Error('반응을 기록할 루틴이 없어요.');
+  }
+  if (!Number.isInteger(numericScore) || numericScore < 1 || numericScore > 5) {
+    throw new Error('반응 점수는 1점부터 5점까지 선택해주세요.');
+  }
+
+  try {
+    const response = await api.post(`/api/v1/routines/${numericRoutineId}/reaction`, {
+      score: numericScore,
+    });
+
+    if (response.data?.success === false) {
+      throw new Error(response.data.error?.message ?? '반응을 기록하지 못했어요.');
+    }
+
+    return response.data.data;
+  } catch (requestError) {
+    const message = requestError.response?.data?.error?.message
+      ?? requestError.response?.data?.message
+      ?? requestError.message
+      ?? '반응을 기록하지 못했어요.';
+    throw new Error(message);
+  }
+}
+
 export function toTomorrowRoutineProduct(step) {
   return {
     id: step.productId,
