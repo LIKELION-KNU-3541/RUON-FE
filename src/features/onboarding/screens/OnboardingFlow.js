@@ -44,7 +44,6 @@ export default function OnboardingFlow({ onComplete, startStep = 2 }) {
       await submitSurvey(mapSurveyDataToApiPayload(surveyData));
       await saveSurveyCompleted();
     } catch (e) {
-      // 설문 API는 아직 백엔드에 존재하지 않는 가정 단계라 실패해도 데모 진행은 막지 않음
       Alert.alert('알림', '설문 저장에 실패했어요. 다음에 다시 시도할 수 있어요.');
     } finally {
       setIsSubmitting(false);

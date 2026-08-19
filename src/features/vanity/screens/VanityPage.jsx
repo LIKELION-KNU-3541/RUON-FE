@@ -17,7 +17,7 @@ import PhotoGuideModal from '../components/PhotoGuideModal';
 import BottomNavigation from '../../../shared/components/BottomNavigation';
 import InfoBox from '../../../shared/components/InfoBox';
 import InputGlass from '../../../shared/components/InputGlass';
-import { getProducts, deleteProduct, getAnalysisSummary } from '../api/productsApi';
+import { getProducts, deleteProduct, updateUsageStatus, getAnalysisSummary } from '../api/productsApi';
 import CameraIcon from '../../../../assets/icons/vanityPage_camera.svg';
 import UploadIcon from '../../../../assets/icons/vanityPage_upload.svg';
 import SummaryIcon1 from '../../../../assets/icons/vanityPage_icon1.svg';
@@ -62,13 +62,17 @@ export default function VanityPage({
   const [summaryCards, setSummaryCards] = useState([]);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [viewingDiscontinued, setViewingDiscontinued] = useState(false);
 
   const activeCategory = FILTERS.find((f) => f.key === activeFilter)?.category;
 
   const loadProducts = async () => {
     setIsLoading(true);
     try {
-      const result = await getProducts({ category: activeCategory, page, size: PAGE_SIZE });
+      const params = viewingDiscontinued
+        ? { usageStatus: 'DISCONTINUED', page, size: PAGE_SIZE }
+        : { category: activeCategory, page, size: PAGE_SIZE };
+      const result = await getProducts(params);
       setProducts(result.products);
       setTotalPages(result.totalPages || 1);
     } catch (e) {
@@ -89,7 +93,7 @@ export default function VanityPage({
 
   useEffect(() => {
     loadProducts();
-  }, [activeFilter, page]);
+  }, [activeFilter, page, viewingDiscontinued]);
 
   useEffect(() => {
     loadSummary();
@@ -97,7 +101,12 @@ export default function VanityPage({
 
   useEffect(() => {
     setPage(1);
-  }, [activeFilter]);
+  }, [activeFilter, viewingDiscontinued]);
+
+  const selectFilter = (key) => {
+    setViewingDiscontinued(false);
+    setActiveFilter(key);
+  };
 
   const handleCaptureGuide = () => {
     setShowPhotoGuide(false);
@@ -130,6 +139,19 @@ export default function VanityPage({
     setIsDeleteMode(false);
     setSelectedIds([]);
     loadProducts();
+    loadSummary();
+  };
+
+  const handleConfirmDiscontinue = async () => {
+    if (selectedIds.length === 0) return;
+    try {
+      await Promise.all(selectedIds.map((id) => updateUsageStatus(id, 'DISCONTINUED')));
+    } catch (e) {
+      // TODO: 에러 처리
+    }
+    setIsDeleteMode(false);
+    setSelectedIds([]);
+    setViewingDiscontinued(true);
     loadSummary();
   };
 
@@ -200,12 +222,12 @@ export default function VanityPage({
             <View style={styles.tagsRow}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                 {FILTERS.map((filter) => {
-                  const active = activeFilter === filter.key;
+                  const active = !viewingDiscontinued && activeFilter === filter.key;
                   return (
                     <TouchableOpacity
                       key={filter.key}
                       activeOpacity={0.8}
-                      onPress={() => setActiveFilter(filter.key)}
+                      onPress={() => selectFilter(filter.key)}
                     >
                       {active ? (
                         <View style={styles.tagActive}>
@@ -225,17 +247,34 @@ export default function VanityPage({
               </View>
 
               {!isDeleteMode && (
-                <TouchableOpacity
-                  style={{ flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-end', marginTop: 20 }}
-                  onPress={handleEnterDeleteMode}
-                >
-                  <TrashIcon width={11} height={12} style={{ marginRight: 4 }} />
-                  <Text style={{ color: '#E78483', fontSize: 11, fontFamily: 'Pretendard-Regular' }}>삭제</Text>
-                </TouchableOpacity>
+                <View style={styles.topActionRow}>
+                  <TouchableOpacity onPress={() => setViewingDiscontinued((v) => !v)}>
+                    {viewingDiscontinued ? (
+                      <View style={styles.tagActive}>
+                        <Text style={styles.tagTextActive}>사용 중단</Text>
+                      </View>
+                    ) : (
+                      <InputGlass glass="vanity" style={styles.tagInactive}>
+                        <Text style={styles.tagTextInactive}>사용 중단</Text>
+                      </InputGlass>
+                    )}
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={{ flexDirection: 'row', alignItems: 'center' }}
+                    onPress={handleEnterDeleteMode}
+                  >
+                    <TrashIcon width={11} height={12} style={{ marginRight: 4 }} />
+                    <Text style={{ color: '#E78483', fontSize: 11, fontFamily: 'Pretendard-Regular' }}>삭제</Text>
+                  </TouchableOpacity>
+                </View>
               )}
             </View>
 
             {/* 제품 리스트 */}
+            {viewingDiscontinued && (
+              <Text style={styles.discontinuedLabel}>사용 중단한 제품</Text>
+            )}
             {isLoading ? (
               <ActivityIndicator color="#945C2D" style={{ marginVertical: 40 }} />
             ) : (
@@ -320,6 +359,14 @@ export default function VanityPage({
               <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(221, 127, 120, 0.3)', borderRadius: scale(40) }]} />
               <TrashIcon width={18} height={18} style={{ marginRight: 8 }} />
               <Text style={styles.deletePillText}>삭제 {selectedIds.length}</Text>
+            </BlurView>
+          </TouchableOpacity>
+
+          <TouchableOpacity activeOpacity={0.85} onPress={handleConfirmDiscontinue} style={{ marginTop: 10 }}>
+            <BlurView intensity={20} tint="light" style={[styles.discontinuePill, { height: scale(52), borderRadius: scale(40) }]}>
+              <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(148, 92, 45, 0.3)', borderRadius: scale(40) }]} />
+              <Text style={{ fontSize: 16, marginRight: 8 }}>🚫</Text>
+              <Text style={styles.discontinuePillText}>사용 중단 {selectedIds.length}</Text>
             </BlurView>
           </TouchableOpacity>
 
@@ -472,6 +519,19 @@ const styles = StyleSheet.create({
     lineHeight: 13,
     color: '#BE9D82',
   },
+  topActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 12,
+    marginTop: 20,
+  },
+  discontinuedLabel: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 13,
+    color: '#945C2D',
+    marginBottom: 10,
+  },
   productList: {
     gap: 10,
   },
@@ -599,6 +659,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     letterSpacing: -0.4,
     color: '#E78483',
+  },
+  discontinuePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 0.5,
+    borderColor: '#BE9D82',
+    overflow: 'hidden',
+  },
+  discontinuePillText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
+    letterSpacing: -0.4,
+    color: '#945C2D',
   },
   cancelPill: {
     alignItems: 'center',
