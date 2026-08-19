@@ -1,7 +1,9 @@
-import React from 'react';
-import { View, Text, ImageBackground, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, ImageBackground, Image, useWindowDimensions } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SvgXml } from 'react-native-svg';
+
+const SPLASH_DURATION_MS = 2000;
 
 const ruonLogoSvgXml = `<svg width="199" height="96" viewBox="0 0 199 96" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M7.14536 72V23.1153H22.0824C27.3542 23.1153 31.4013 24.2868 34.2237 26.6299C37.0992 28.9197 38.537 32.1414 38.537 36.295C38.537 39.4901 37.7116 42.2059 36.0608 44.4424C34.4633 46.679 32.4397 48.4097 29.9902 49.6344L42.451 72H33.2651L22.8012 51.7112C22.2687 51.8177 21.6563 51.8976 20.9641 51.9509C20.2718 52.0041 19.473 52.0308 18.5678 52.0308C18.195 52.0308 17.7424 52.0308 17.2099 52.0308C16.6773 51.9775 16.0383 51.9243 15.2928 51.871V72H7.14536ZM21.3635 46.4394C23.0143 46.4394 24.5053 46.1731 25.8366 45.6406C27.1679 45.0548 28.2329 44.1762 29.0317 43.0047C29.8837 41.7799 30.3097 40.209 30.3097 38.2919C30.3097 35.4163 29.4843 33.1798 27.8335 31.5822C26.236 29.9315 24.0793 29.0262 21.3635 28.8664C20.4582 28.8132 19.4997 28.8132 18.4879 28.8664C17.4761 28.8664 16.4111 28.8931 15.2928 28.9463V46.1199C16.2513 46.1731 17.2099 46.253 18.1684 46.3595C19.1802 46.4127 20.2452 46.4394 21.3635 46.4394ZM68.4085 73.0384C64.6809 73.0384 61.4326 72.426 58.6635 71.2012C55.9477 69.9232 53.8176 68.0328 52.2734 65.53C50.7823 62.9739 50.0368 59.8054 50.0368 56.0246V23.1153H58.1843V53.3887C58.1843 56.4772 58.6901 58.9534 59.7019 60.8172C60.7137 62.681 62.1248 64.0389 63.9354 64.8909C65.7992 65.743 67.9026 66.169 70.2457 66.169C73.3343 66.169 75.8104 65.317 77.6742 63.6129C79.5913 61.8556 80.5498 59.2197 80.5498 55.7051V23.1153H88.2979V53.9478C88.2979 57.9949 87.4991 61.4562 85.9016 64.3318C84.3573 67.2074 82.0941 69.3907 79.112 70.8817C76.1832 72.3195 72.6154 73.0384 68.4085 73.0384ZM152.936 72V23.1153H161.004L184.727 59.2996V23.1153H191.837V72H184.408L160.125 35.2566V72H152.936Z" fill="#ECEADB"/>
@@ -25,12 +27,13 @@ export default function SplashScreen({ onNext }) {
   const scaleW = (px) => (px / FIGMA_WIDTH) * SCREEN_WIDTH;
   const scaleH = (px) => (px / FIGMA_HEIGHT) * SCREEN_HEIGHT;
 
+  useEffect(() => {
+    const timer = setTimeout(() => onNext?.(), SPLASH_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <TouchableOpacity
-      activeOpacity={0.9}
-      onPress={onNext}
-      className="flex-1 relative"
-    >
+    <View className="flex-1 relative">
       <StatusBar style="light" />
 
       {/* 1. Base Background Image */}
@@ -70,6 +73,6 @@ export default function SplashScreen({ onNext }) {
           </View>
         </View>
       </ImageBackground>
-    </TouchableOpacity>
+    </View>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -6,50 +6,99 @@ import {
   ScrollView,
   StyleSheet,
   Image,
+  ActivityIndicator,
+  Alert,
   ImageBackground,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import InfoBox from '../../../shared/components/InfoBox';
-// TODO: 서버 연동 시 DUMMY_PRODUCTS import 삭제 및 API 응답 데이터 사용
-import { DUMMY_PRODUCTS } from '../data/dummyData';
+import { getProduct, createProduct } from '../api/productsApi';
+import { ApiError } from '../../../shared/api/client';
 import StatusIcon1 from '../../../../assets/icons/vanityPage_icon1.svg';
 import StatusIcon2 from '../../../../assets/icons/vanityPage_icon2.svg';
-import StatusIcon3 from '../../../../assets/icons/vanityPage_icon3.svg';
 import StatusIcon4 from '../../../../assets/icons/vanityPage_icon4.svg';
 import CareIcon from '../../../../assets/icons/result_green_icon.svg';
 
 const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
 
-const STATUS_LABEL = {
-  safe: '사용 유지',
-  caution: '잠시 보류',
-  selective: '선택 사용',
-  danger: '추가 확인',
-};
-
-const STATUS_ICON = {
-  safe: StatusIcon1,
-  caution: StatusIcon2,
-  selective: StatusIcon3,
-  danger: StatusIcon4,
-};
+// Card.iconType -> 표시 아이콘
+function CardIcon({ iconType }) {
+  if (iconType === 'BENEFIT') {
+    return (
+      <View style={styles.careIconCircle}>
+        <CareIcon width={16} height={16} />
+      </View>
+    );
+  }
+  if (iconType === 'WARNING') return <StatusIcon2 width={30} height={30} />;
+  if (iconType === 'CHECK') return <StatusIcon1 width={30} height={30} />;
+  return <StatusIcon4 width={30} height={30} />;
+}
 
 /**
- * 제품 확인 / 상세 화면
- * @param {object} product - 제품 데이터 (없으면 더미 첫 번째 제품 사용)
+ * 제품 확인(신규 스캔) / 상세(기존 제품) 화면
+ * - scanId가 있으면 아직 화장대에 등록되지 않은 신규 스캔 결과 → "화장대에 추가하기" 노출
+ * - productId만 있으면 이미 등록된 기존 제품 → GET /products/{productId}로 상세 조회
+ * @param {object} product - 신규: { scanId, productName, brandName, capacity, fullIngredients, imageUrl, primaryCard, secondaryCard } / 기존: { productId, ... }
  * @param {function} onBack - 뒤로 가기
- * @param {function} onAddToVanity - "화장대에 추가하기" 버튼 콜백
+ * @param {function} onAddToVanity - "화장대에 추가하기" 성공 후 콜백
  */
 export default function ProductDetailScreen({ product: productProp, onBack, onAddToVanity }) {
-  // TODO: 서버 연동 시 아래 더미 폴백 삭제 (product은 항상 API 응답에서 옴)
-  const product = productProp ?? DUMMY_PRODUCTS[0];
-  const { basicInfo } = product;
+  const isPending = Boolean(productProp?.scanId);
+  const [detail, setDetail] = useState(isPending ? productProp : null);
+  const [isLoading, setIsLoading] = useState(!isPending);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
 
-  const statusLabel = STATUS_LABEL[product.safetyLevel] ?? STATUS_LABEL.safe;
-  const StatusIcon = STATUS_ICON[product.safetyLevel] ?? STATUS_ICON.safe;
-  const fullIngredients = basicInfo.fullIngredients ?? basicInfo.mainIngredients;
-  const ingredientsPreview = `${fullIngredients.split(',')[0].trim()} 외 전성분 확인`;
+  useEffect(() => {
+    if (isPending) return;
+    let cancelled = false;
+    setIsLoading(true);
+    getProduct(productProp.productId)
+      .then((result) => {
+        if (!cancelled) setDetail(result);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [productProp?.productId]);
+
+  const handleAdd = async () => {
+    setIsSubmitting(true);
+    try {
+      await createProduct({
+        scanId: detail.scanId,
+        productName: detail.productName,
+        brandName: detail.brandName,
+        capacity: detail.capacity,
+      });
+      onAddToVanity?.();
+    } catch (e) {
+      const message = e instanceof ApiError ? e.message : '화장대 등록에 실패했어요.';
+      Alert.alert('등록 실패', message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isLoading || !detail) {
+    return (
+      <ImageBackground source={backgroundSource} resizeMode="cover" style={styles.root}>
+        <SafeAreaView style={[styles.safeArea, styles.centered]}>
+          <ActivityIndicator color="#945C2D" />
+        </SafeAreaView>
+      </ImageBackground>
+    );
+  }
+
+  const fullIngredients = detail.fullIngredients ?? [];
+  const ingredientsText = fullIngredients.join(', ');
+  const ingredientsPreview = fullIngredients.length
+    ? `${fullIngredients[0]} 외 전성분 확인`
+    : '전성분 정보 없음';
 
   return (
     <ImageBackground source={backgroundSource} resizeMode="cover" style={styles.root}>
@@ -59,7 +108,7 @@ export default function ProductDetailScreen({ product: productProp, onBack, onAd
           <TouchableOpacity style={styles.headerBtn} onPress={onBack} activeOpacity={0.7}>
             <Text style={styles.headerBtnText}>‹</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>제품 확인</Text>
+          <Text style={styles.headerTitle}>{isPending ? '제품 확인' : '제품 상세'}</Text>
           <TouchableOpacity style={styles.headerBtn} onPress={onBack}>
             <Text style={styles.headerCloseText}>✕</Text>
           </TouchableOpacity>
@@ -73,9 +122,9 @@ export default function ProductDetailScreen({ product: productProp, onBack, onAd
           {/* 제품 이미지 + 기본 정보 카드 */}
           <View style={styles.productCard}>
             <View style={styles.productImageWrapper}>
-              {product.image ? (
+              {detail.imageUrl ? (
                 <Image
-                  source={{ uri: product.image }}
+                  source={{ uri: detail.imageUrl }}
                   style={styles.productImage}
                   resizeMode="cover"
                 />
@@ -84,36 +133,36 @@ export default function ProductDetailScreen({ product: productProp, onBack, onAd
               )}
             </View>
             <View style={styles.productCardInfo}>
-              <Text style={styles.productName} numberOfLines={1}>{product.name}</Text>
+              <Text style={styles.productName} numberOfLines={1}>{detail.productName}</Text>
               <View style={styles.productInfoLine}>
                 <Text style={styles.productInfoLabel}>브랜드</Text>
-                <Text style={styles.productInfoValue}>{product.brand}</Text>
+                <Text style={styles.productInfoValue}>{detail.brandName ?? '-'}</Text>
               </View>
               <View style={styles.productInfoLine}>
-                <Text style={styles.productInfoLabel}>카테고리</Text>
-                <Text style={styles.productInfoValue}>{product.steps?.[0] ?? '-'}</Text>
+                <Text style={styles.productInfoLabel}>용량</Text>
+                <Text style={styles.productInfoValue}>{detail.capacity ?? '-'}</Text>
               </View>
             </View>
           </View>
 
-          {/* 사용 상태 카드 */}
-          <View style={styles.statusCard}>
-            <StatusIcon width={30} height={30} />
-            <View style={styles.statusTextCol}>
-              <Text style={styles.statusTitle}>{statusLabel}</Text>
-              <Text style={styles.statusDesc}>{product.usageNote}</Text>
-            </View>
-          </View>
-
-          {/* 추천 카드 */}
-          {product.recommendation && (
+          {/* 안전성 분석 카드 */}
+          {detail.primaryCard && (
             <View style={styles.statusCard}>
-              <View style={styles.careIconCircle}>
-                <CareIcon width={16} height={16} />
-              </View>
+              <CardIcon iconType={detail.primaryCard.iconType} />
               <View style={styles.statusTextCol}>
-                <Text style={styles.statusTitle}>{product.recommendation.title}</Text>
-                <Text style={styles.statusDesc}>{product.recommendation.note}</Text>
+                <Text style={styles.statusTitle}>{detail.primaryCard.title}</Text>
+                <Text style={styles.statusDesc}>{detail.primaryCard.description}</Text>
+              </View>
+            </View>
+          )}
+
+          {/* 케어 효능 카드 */}
+          {detail.secondaryCard && (
+            <View style={styles.statusCard}>
+              <CardIcon iconType={detail.secondaryCard.iconType} />
+              <View style={styles.statusTextCol}>
+                <Text style={styles.statusTitle}>{detail.secondaryCard.title}</Text>
+                <Text style={styles.statusDesc}>{detail.secondaryCard.description}</Text>
               </View>
             </View>
           )}
@@ -123,19 +172,15 @@ export default function ProductDetailScreen({ product: productProp, onBack, onAd
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>제품명</Text>
-              <Text style={styles.infoValue}>{basicInfo.productName}</Text>
+              <Text style={styles.infoValue}>{detail.productName}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>브랜드</Text>
-              <Text style={styles.infoValue}>{basicInfo.brand}</Text>
+              <Text style={styles.infoValue}>{detail.brandName ?? '-'}</Text>
             </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>용량</Text>
-              <Text style={styles.infoValue}>{basicInfo.volume}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>주요 성분</Text>
-              <Text style={styles.infoValue}>{basicInfo.mainIngredients}</Text>
+              <Text style={styles.infoValue}>{detail.capacity ?? '-'}</Text>
             </View>
             <TouchableOpacity
               style={styles.infoRow}
@@ -144,7 +189,7 @@ export default function ProductDetailScreen({ product: productProp, onBack, onAd
             >
               <Text style={styles.infoLabel}>전성분</Text>
               <Text style={styles.infoValue}>
-                {ingredientsExpanded ? fullIngredients : ingredientsPreview}
+                {ingredientsExpanded ? ingredientsText : ingredientsPreview}
               </Text>
             </TouchableOpacity>
           </View>
@@ -153,16 +198,23 @@ export default function ProductDetailScreen({ product: productProp, onBack, onAd
           <InfoBox />
         </ScrollView>
 
-        {/* 화장대에 추가하기 버튼 (하단 고정) */}
-        <View style={styles.addBar}>
-          <TouchableOpacity
-            style={styles.addBtn}
-            activeOpacity={0.85}
-            onPress={() => onAddToVanity?.(product)}
-          >
-            <Text style={styles.addBtnText}>화장대에 추가하기</Text>
-          </TouchableOpacity>
-        </View>
+        {/* 화장대에 추가하기 버튼 (신규 스캔 결과일 때만 노출) */}
+        {isPending && (
+          <View style={styles.addBar}>
+            <TouchableOpacity
+              style={styles.addBtn}
+              activeOpacity={0.85}
+              disabled={isSubmitting}
+              onPress={handleAdd}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text style={styles.addBtnText}>화장대에 추가하기</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
       </SafeAreaView>
     </ImageBackground>
   );
@@ -174,6 +226,10 @@ const styles = StyleSheet.create({
   },
   safeArea: {
     flex: 1,
+  },
+  centered: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   header: {
     flexDirection: 'row',

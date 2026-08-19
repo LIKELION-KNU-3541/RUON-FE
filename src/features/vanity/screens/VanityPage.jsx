@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
+  Image,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  ActivityIndicator,
   ImageBackground,
 } from 'react-native';
 import { BlurView } from 'expo-blur';
@@ -14,8 +16,8 @@ import { useResponsiveScale } from '../../../shared/utils/responsive';
 import PhotoGuideModal from '../components/PhotoGuideModal';
 import BottomNavigation from '../../../shared/components/BottomNavigation';
 import InfoBox from '../../../shared/components/InfoBox';
-import { DUMMY_PRODUCTS } from '../data/dummyData';
 import InputGlass from '../../../shared/components/InputGlass';
+import { getProducts, deleteProduct, getAnalysisSummary } from '../api/productsApi';
 import CameraIcon from '../../../../assets/icons/vanityPage_camera.svg';
 import UploadIcon from '../../../../assets/icons/vanityPage_upload.svg';
 import SummaryIcon1 from '../../../../assets/icons/vanityPage_icon1.svg';
@@ -26,27 +28,76 @@ import TrashIcon from '../../../../assets/icons/trash_icon.svg';
 
 const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
 
+// analysisCategory <-> 화면 표시 매핑
+const CATEGORY_META = {
+  KEEP_USING: { icon: SummaryIcon1, color: '#6ECF86' },
+  PAUSE: { icon: SummaryIcon2, color: '#FF907F' },
+  SELECTIVE_USE: { icon: SummaryIcon3, color: '#F7D76D' },
+  NEEDS_REVIEW: { icon: SummaryIcon4, color: '#A567B1' },
+};
+
 const FILTERS = [
-  { key: 'all', label: '전체' },
-  { key: 'safe', label: '사용 유지' },
-  { key: 'caution', label: '잠시 보류' },
-  { key: 'selective', label: '선택 사용' },
-  { key: 'danger', label: '추가 확인' },
+  { key: 'all', label: '전체', category: undefined },
+  { key: 'safe', label: '사용 유지', category: 'KEEP_USING' },
+  { key: 'caution', label: '잠시 보류', category: 'PAUSE' },
+  { key: 'selective', label: '선택 사용', category: 'SELECTIVE_USE' },
+  { key: 'danger', label: '추가 확인', category: 'NEEDS_REVIEW' },
 ];
+
+const PAGE_SIZE = 5;
 
 export default function VanityPage({
   onNavigateCamera,
   onNavigateFileUpload,
-  onNavigateSearch,
   onNavigateDetail,
   onTabChange,
 }) {
   const { scale, moderateScale } = useResponsiveScale();
   const [showPhotoGuide, setShowPhotoGuide] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
-  const [products, setProducts] = useState(DUMMY_PRODUCTS);
+  const [products, setProducts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [summaryCards, setSummaryCards] = useState([]);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
+
+  const activeCategory = FILTERS.find((f) => f.key === activeFilter)?.category;
+
+  const loadProducts = async () => {
+    setIsLoading(true);
+    try {
+      const result = await getProducts({ category: activeCategory, page, size: PAGE_SIZE });
+      setProducts(result.products);
+      setTotalPages(result.totalPages || 1);
+    } catch (e) {
+      // TODO: 에러 처리(토스트 등)
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadSummary = async () => {
+    try {
+      const result = await getAnalysisSummary();
+      setSummaryCards(result.analysisCards || []);
+    } catch (e) {
+      // TODO: 에러 처리
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
+  }, [activeFilter, page]);
+
+  useEffect(() => {
+    loadSummary();
+  }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [activeFilter]);
 
   const handleCaptureGuide = () => {
     setShowPhotoGuide(false);
@@ -69,31 +120,18 @@ export default function VanityPage({
     setSelectedIds([]);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (selectedIds.length === 0) return;
-    setProducts((prev) => prev.filter((p) => !selectedIds.includes(p.id)));
+    try {
+      await Promise.all(selectedIds.map((id) => deleteProduct(id)));
+    } catch (e) {
+      // TODO: 에러 처리
+    }
     setIsDeleteMode(false);
     setSelectedIds([]);
+    loadProducts();
+    loadSummary();
   };
-
-  const getSafetyIcon = (level) => {
-    switch (level) {
-      case 'safe':
-        return SummaryIcon1;
-      case 'caution':
-        return SummaryIcon2;
-      case 'selective':
-        return SummaryIcon3;
-      case 'danger':
-      default:
-        return SummaryIcon4;
-    }
-  };
-
-  const filteredProducts =
-    activeFilter === 'all'
-      ? products
-      : products.filter((product) => product.safetyLevel === activeFilter);
 
   return (
     <ImageBackground source={backgroundSource} resizeMode="cover" style={styles.root}>
@@ -142,33 +180,19 @@ export default function VanityPage({
           <View style={styles.summarySection}>
             <Text style={styles.sectionTitle}>분석 요약</Text>
             <View style={styles.summaryRow}>
-              {/* 사용 유지 */}
-              <View style={styles.summaryCard}>
-                <SummaryIcon1 width={30} height={30} style={styles.summaryIcon} />
-                <Text style={styles.summaryLabel}>사용 유지</Text>
-                <Text style={[styles.summaryCount, { color: '#6ECF86' }]}>08</Text>
-              </View>
-
-              {/* 잠시 보류 */}
-              <View style={styles.summaryCard}>
-                <SummaryIcon2 width={30} height={30} style={styles.summaryIcon} />
-                <Text style={styles.summaryLabel}>잠시 보류</Text>
-                <Text style={[styles.summaryCount, { color: '#FF907F' }]}>04</Text>
-              </View>
-
-              {/* 선택 사용 */}
-              <View style={styles.summaryCard}>
-                <SummaryIcon3 width={30} height={30} style={styles.summaryIcon} />
-                <Text style={styles.summaryLabel}>선택 사용</Text>
-                <Text style={[styles.summaryCount, { color: '#F7D76D' }]}>03</Text>
-              </View>
-
-              {/* 추가 확인 */}
-              <View style={styles.summaryCard}>
-                <SummaryIcon4 width={30} height={30} style={styles.summaryIcon} />
-                <Text style={styles.summaryLabel}>추가 확인</Text>
-                <Text style={[styles.summaryCount, { color: '#A567B1' }]}>02</Text>
-              </View>
+              {summaryCards.map((card) => {
+                const meta = CATEGORY_META[card.category] || CATEGORY_META.NEEDS_REVIEW;
+                const SummaryIcon = meta.icon;
+                return (
+                  <View key={card.category} style={styles.summaryCard}>
+                    <SummaryIcon width={30} height={30} style={styles.summaryIcon} />
+                    <Text style={styles.summaryLabel}>{card.title}</Text>
+                    <Text style={[styles.summaryCount, { color: meta.color }]}>
+                      {String(card.count).padStart(2, '0')}
+                    </Text>
+                  </View>
+                );
+              })}
             </View>
           </View>
 
@@ -211,49 +235,68 @@ export default function VanityPage({
               )}
             </View>
 
-            {/* 제품 리스트 (더미 데이터 매핑) */}
-            <View style={styles.productList}>
+            {/* 제품 리스트 */}
+            {isLoading ? (
+              <ActivityIndicator color="#945C2D" style={{ marginVertical: 40 }} />
+            ) : (
+              <View style={styles.productList}>
+                {products.map((product) => {
+                  const meta = CATEGORY_META[product.analysisCategory] || CATEGORY_META.NEEDS_REVIEW;
+                  const SafetyIcon = meta.icon;
+                  const isSelected = selectedIds.includes(product.productId);
 
-              {filteredProducts.map((product) => {
-                const SafetyIcon = getSafetyIcon(product.safetyLevel);
-                const isSelected = selectedIds.includes(product.id);
-
-                return (
-                  <TouchableOpacity
-                    key={product.id}
-                    style={[styles.productCard, isDeleteMode && isSelected && styles.productCardSelected]}
-                    activeOpacity={0.7}
-                    onPress={() =>
-                      isDeleteMode ? toggleSelect(product.id) : onNavigateDetail?.(product)
-                    }
-                  >
-                    {isDeleteMode && (
-                      <View style={[styles.checkCircle, isSelected && styles.checkCircleSelected]}>
-                        {isSelected && <Text style={styles.checkMark}>✓</Text>}
+                  return (
+                    <TouchableOpacity
+                      key={product.productId}
+                      style={[styles.productCard, isDeleteMode && isSelected && styles.productCardSelected]}
+                      activeOpacity={0.7}
+                      onPress={() =>
+                        isDeleteMode ? toggleSelect(product.productId) : onNavigateDetail?.(product)
+                      }
+                    >
+                      {isDeleteMode && (
+                        <View style={[styles.checkCircle, isSelected && styles.checkCircleSelected]}>
+                          {isSelected && <Text style={styles.checkMark}>✓</Text>}
+                        </View>
+                      )}
+                      <View style={styles.productImgPlaceholder}>
+                        {product.imageUrl ? (
+                          <Image source={{ uri: product.imageUrl }} style={styles.productImg} resizeMode="cover" />
+                        ) : (
+                          <Text style={{ fontSize: 28 }}>🧴</Text>
+                        )}
                       </View>
-                    )}
-                    <View style={styles.productImgPlaceholder}>
-                      <Text style={{ fontSize: 28 }}>🧴</Text>
-                    </View>
-                    <View style={styles.productInfo}>
-                      <Text style={styles.productTitle} numberOfLines={1}>{product.name}</Text>
-                      <Text style={styles.productDesc} numberOfLines={2}>{product.usageNote}</Text>
-                    </View>
-                    <View style={styles.statusIconRow}>
-                      <SafetyIcon width={30} height={30} />
-                      {!isDeleteMode && <Text style={styles.statusChevron}>&gt;</Text>}
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-
-            </View>
+                      <View style={styles.productInfo}>
+                        <Text style={styles.productTitle} numberOfLines={1}>{product.productName}</Text>
+                        <Text style={styles.productDesc} numberOfLines={2}>{product.description}</Text>
+                      </View>
+                      <View style={styles.statusIconRow}>
+                        <SafetyIcon width={30} height={30} />
+                        {!isDeleteMode && <Text style={styles.statusChevron}>&gt;</Text>}
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
 
             {/* Pagination */}
             <View style={styles.pagination}>
-              <TouchableOpacity style={styles.pageBtn}><Text style={styles.pageBtnText}>&lt;</Text></TouchableOpacity>
-              <Text style={styles.pageText}>1 <Text style={{ fontWeight: '400' }}>/ 3</Text></Text>
-              <TouchableOpacity style={styles.pageBtn}><Text style={styles.pageBtnText}>&gt;</Text></TouchableOpacity>
+              <TouchableOpacity
+                style={styles.pageBtn}
+                disabled={page <= 1}
+                onPress={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                <Text style={styles.pageBtnText}>&lt;</Text>
+              </TouchableOpacity>
+              <Text style={styles.pageText}>{page} <Text style={{ fontWeight: '400' }}>/ {totalPages}</Text></Text>
+              <TouchableOpacity
+                style={styles.pageBtn}
+                disabled={page >= totalPages}
+                onPress={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                <Text style={styles.pageBtnText}>&gt;</Text>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -452,6 +495,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#EDE3D9',
     borderRadius: 8,
     marginRight: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  productImg: {
+    width: '100%',
+    height: '100%',
   },
   productInfo: {
     flex: 1,

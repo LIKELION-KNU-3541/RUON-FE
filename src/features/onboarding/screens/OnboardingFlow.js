@@ -1,16 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import SplashScreen from './SplashScreen';
+import { View, Text, TouchableOpacity, Alert } from 'react-native';
 import LoginScreen from './LoginScreen';
 import WelcomeScreen from './WelcomeScreen';
 import SurveyConditionScreen from './SurveyConditionScreen';
 import SurveyDetailScreen from './SurveyDetailScreen';
 import SurveySummaryScreen from './SurveySummaryScreen';
+import { submitSurvey } from '../api/surveyApi';
+import { mapSurveyDataToApiPayload } from '../api/surveyMapping';
+import { saveSurveyCompleted } from '../../../shared/api/tokenStorage';
 
 const SHOW_DEMO_NAV = false;
 
-export default function OnboardingFlow({ onComplete }) {
-  const [currentStep, setCurrentStep] = useState(1);
+/**
+ * @param {function} onComplete - 설문 완료 콜백
+ * @param {number} startStep - 시작 단계. 2: 로그인부터(최초), 3: Welcome부터(이미 로그인된 상태에서 설문만 필요할 때)
+ */
+export default function OnboardingFlow({ onComplete, startStep = 2 }) {
+  // 1: 스플래시(main.jsx에서 전역으로 처리), 2: 로그인 ~ 6: 설문 요약
+  const [currentStep, setCurrentStep] = useState(startStep);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [surveyData, setSurveyData] = useState({
     condition: '임신 중',
     weeks: '',
@@ -28,6 +36,20 @@ export default function OnboardingFlow({ onComplete }) {
 
   const prevStep = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
+
+  const handleSurveyComplete = async () => {
+    setIsSubmitting(true);
+    try {
+      await submitSurvey(mapSurveyDataToApiPayload(surveyData));
+      await saveSurveyCompleted();
+    } catch (e) {
+      // 설문 API는 아직 백엔드에 존재하지 않는 가정 단계라 실패해도 데모 진행은 막지 않음
+      Alert.alert('알림', '설문 저장에 실패했어요. 다음에 다시 시도할 수 있어요.');
+    } finally {
+      setIsSubmitting(false);
+    }
+    onComplete?.(surveyData);
   };
 
   return (
@@ -69,7 +91,6 @@ export default function OnboardingFlow({ onComplete }) {
       )}
 
       <View className="flex-1">
-        {currentStep === 1 && <SplashScreen onNext={nextStep} />}
         {currentStep === 2 && <LoginScreen onNext={nextStep} />}
         {currentStep === 3 && <WelcomeScreen onNext={nextStep} />}
         {currentStep === 4 && (
@@ -89,7 +110,8 @@ export default function OnboardingFlow({ onComplete }) {
         {currentStep === 6 && (
           <SurveySummaryScreen
             onPrev={() => setCurrentStep(4)}
-            onComplete={() => onComplete?.(surveyData)}
+            onComplete={handleSurveyComplete}
+            isSubmitting={isSubmitting}
             surveyData={surveyData}
           />
         )}

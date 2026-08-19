@@ -18,7 +18,7 @@ import InputGlass from '../../../shared/components/InputGlass';
 const FIGMA_WIDTH = 360;
 const FIGMA_HEIGHT = 800;
 
-export default function SurveySummaryScreen({ onPrev, onComplete, surveyData }) {
+export default function SurveySummaryScreen({ onPrev, onComplete, isSubmitting, surveyData }) {
   const condition = surveyData?.condition || '임신중';
   const weeks = surveyData?.weeks || '24주';
   const concerns = surveyData?.concerns?.join(' · ') || '건조함· 민감함· 가려움';
@@ -128,6 +128,7 @@ export default function SurveySummaryScreen({ onPrev, onComplete, surveyData }) 
         <BottomButton
           title="시작하기"
           onPress={onComplete}
+          disabled={isSubmitting}
         />
       </ImageBackground>
     </View>

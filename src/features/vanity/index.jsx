@@ -5,23 +5,20 @@ import FileUploadScreen from './screens/FileUploadScreen';
 import AnalyzingScreen from './screens/AnalyzingScreen';
 import ProductConfirmScreen from './screens/ProductConfirmScreen';
 import OcrResultScreen from './screens/OcrResultScreen';
-import ProductSearchScreen from './screens/ProductSearchScreen';
-import ProductSearchResultScreen from './screens/ProductSearchResultScreen';
 import ProductDetailScreen from './screens/ProductDetailScreen';
 
 /**
  * 화장대 기능 내부 라우터
  * 화면 흐름:
  *   main → camera/fileUpload → analyzing → confirm → ocrResult → detail (촬영/업로드 경로)
- *   main → search → searchResult → detail (검색 경로)
  *   main → detail (기존 제품 탭)
  * @param {function} onTabChange - 바텀 네비 탭 전환 콜백 (AppRoutes로 전달)
  */
 export default function VanityRouter({ onTabChange }) {
   const [screen, setScreen] = useState('main');
   const [photoUri, setPhotoUri] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [detailProduct, setDetailProduct] = useState(null);
   const [detailOrigin, setDetailOrigin] = useState('main');
 
   // ── 화면 이동 헬퍼 ──────────────────────────────────────────────
@@ -36,13 +33,6 @@ export default function VanityRouter({ onTabChange }) {
     setScreen('analyzing');
   };
 
-  const goSearch = () => setScreen('search');
-
-  const goSearchResult = (query) => {
-    setSearchQuery(query);
-    setScreen('searchResult');
-  };
-
   const goConfirm = (product) => {
     setSelectedProduct(product);
     setScreen('confirm');
@@ -54,22 +44,18 @@ export default function VanityRouter({ onTabChange }) {
   };
 
   const goDetail = (product, origin = 'main') => {
-    setSelectedProduct(product);
+    setDetailProduct(product);
     setDetailOrigin(origin);
     setScreen('detail');
   };
 
-  const handleAddToVanity = (product) => {
-    // TODO: 서버 연동 시 화장대 추가 API 호출
-    // API 성공 후 main으로 이동
+  const handleAddedToVanity = () => {
     setScreen('main');
   };
 
   // ── 분석 완료 → 결과 확인 ─────────────────────────────────────
-  const handleAnalyzingComplete = (product) => {
-    // TODO: 서버 연동 시 product는 API에서 받은 실제 데이터
-    // 현재는 null 전달 → ProductConfirmScreen에서 더미 폴백 사용
-    goConfirm(product);
+  const handleAnalyzingComplete = (scanResult) => {
+    goConfirm(scanResult);
   };
 
   // ── 렌더링 ────────────────────────────────────────────────────
@@ -94,6 +80,7 @@ export default function VanityRouter({ onTabChange }) {
   if (screen === 'analyzing') {
     return (
       <AnalyzingScreen
+        photoUri={photoUri}
         onBack={goMain}
         onComplete={handleAnalyzingComplete}
       />
@@ -123,39 +110,18 @@ export default function VanityRouter({ onTabChange }) {
     );
   }
 
-  if (screen === 'search') {
-    return (
-      <ProductSearchScreen
-        onBack={goMain}
-        onSearch={(query) => goSearchResult(query)}
-      />
-    );
-  }
-
-  if (screen === 'searchResult') {
-    return (
-      <ProductSearchResultScreen
-        query={searchQuery}
-        onBack={goSearch}
-        onSelectProduct={(product) => goDetail(product, 'search')}
-      />
-    );
-  }
-
   if (screen === 'detail') {
     return (
       <ProductDetailScreen
-        product={selectedProduct}
+        product={detailProduct}
         onBack={() => {
           if (detailOrigin === 'ocrResult') {
             goOcrResult(selectedProduct);
-          } else if (detailOrigin === 'search') {
-            setScreen('searchResult');
           } else {
             goMain();
           }
         }}
-        onAddToVanity={handleAddToVanity}
+        onAddToVanity={handleAddedToVanity}
       />
     );
   }
@@ -165,7 +131,6 @@ export default function VanityRouter({ onTabChange }) {
     <VanityPage
       onNavigateCamera={goCamera}
       onNavigateFileUpload={goFileUpload}
-      onNavigateSearch={goSearch}
       onNavigateDetail={goDetail}
       onTabChange={onTabChange}
     />
