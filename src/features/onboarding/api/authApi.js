@@ -1,4 +1,5 @@
 import client from '../../../shared/api/client';
+import publicClient from '../../../shared/api/client'; 
 
 // pregnancyStage: 'PRE_PREGNANCY' | 'PREGNANT' | 'POSTPARTUM'
 // skinConcerns: ('DRYNESS' | 'SENSITIVITY' | 'TROUBLE' | 'ITCHING' | 'HYPERPIGMENTATION' | 'PUFFINESS')[]
@@ -13,7 +14,7 @@ export function signUp({
   skinConcerns,
   skinType,
 }) {
-  return client.post('/auth/signup', {
+  return publicClient.post('/auth/signup', {
     email,
     password,
     name,
@@ -26,7 +27,7 @@ export function signUp({
 }
 
 export function login({ email, password }) {
-  return client.post('/auth/login', { email, password });
+  return publicClient.post('/auth/login', { email, password });
 }
 
 export function getMyInfo() {
