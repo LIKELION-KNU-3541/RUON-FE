@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet, ImageBackground, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-// TODO: 서버 연동 시 DUMMY_PRODUCTS import 삭제 및 API(OCR) 응답 데이터 사용
-import { DUMMY_PRODUCTS } from '../data/dummyData';
 import ResultIcon from '../../../../assets/icons/result_icon.svg';
 import PencilIcon from '../../../../assets/icons/update_pencil_icon.svg';
 
@@ -70,22 +68,20 @@ function EditableField({
 /**
  * OCR 분석 결과 확인 화면
  * 인식된 제품 정보를 항목별로 보여주고, 전성분은 펼쳐보기 지원
- * @param {object} product - 인식된 제품 데이터 (없으면 더미 첫 번째 제품 사용)
+ * @param {object} scanResult - ProductConfirmScreen에서 넘어온 스캔 결과 ({ scanId, product, imageUrl, analysis })
  * @param {function} onClose - 닫기 (X)
  * @param {function} onBack - "이전" 버튼
  * @param {function} onNext - "다음" 버튼
  */
-export default function OcrResultScreen({ product: productProp, onClose, onBack, onNext }) {
-  // TODO: 서버 연동 시 아래 더미 폴백 삭제 (product은 항상 API 응답에서 옴)
-  const product = productProp ?? DUMMY_PRODUCTS[0];
-  const { basicInfo } = product;
+export default function OcrResultScreen({ product: scanResult, onClose, onBack, onNext }) {
+  const { scanId, product, imageUrl, analysis } = scanResult;
   const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
   const [editingField, setEditingField] = useState(null);
   const [fields, setFields] = useState({
-    productName: basicInfo.productName,
-    brand: basicInfo.brand,
-    volume: basicInfo.volume,
-    ingredients: basicInfo.fullIngredients ?? basicInfo.mainIngredients,
+    productName: product.productName ?? '',
+    brandName: product.brandName ?? '',
+    capacity: product.capacity ?? '',
+    ingredients: (product.fullIngredients ?? []).join(', '),
   });
 
   const updateField = (key, text) => {
@@ -101,17 +97,14 @@ export default function OcrResultScreen({ product: productProp, onClose, onBack,
 
   const handleNext = () => {
     onNext?.({
-      ...product,
-      name: fields.productName,
-      brand: fields.brand,
-      volume: fields.volume,
-      basicInfo: {
-        ...basicInfo,
-        productName: fields.productName,
-        brand: fields.brand,
-        volume: fields.volume,
-        fullIngredients: fields.ingredients,
-      },
+      scanId,
+      productName: fields.productName,
+      brandName: fields.brandName,
+      capacity: fields.capacity,
+      fullIngredients: fields.ingredients.split(',').map((s) => s.trim()).filter(Boolean),
+      imageUrl,
+      primaryCard: analysis?.primaryCard ?? null,
+      secondaryCard: analysis?.secondaryCard ?? null,
     });
   };
 
@@ -137,8 +130,8 @@ export default function OcrResultScreen({ product: productProp, onClose, onBack,
         >
           <View style={styles.card}>
             <View style={styles.imageCard}>
-              {product.image ? (
-                <Image source={{ uri: product.image }} style={styles.image} resizeMode="cover" />
+              {imageUrl ? (
+                <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
               ) : (
                 <Text style={styles.imagePlaceholder}>🧴</Text>
               )}
@@ -155,18 +148,18 @@ export default function OcrResultScreen({ product: productProp, onClose, onBack,
               />
               <EditableField
                 label="브랜드"
-                value={fields.brand}
-                onChangeValue={(text) => updateField('brand', text)}
-                isEditing={editingField === 'brand'}
-                onStartEdit={() => startEdit('brand')}
+                value={fields.brandName}
+                onChangeValue={(text) => updateField('brandName', text)}
+                isEditing={editingField === 'brandName'}
+                onStartEdit={() => startEdit('brandName')}
                 onFinishEdit={finishEdit}
               />
               <EditableField
                 label="용량"
-                value={fields.volume}
-                onChangeValue={(text) => updateField('volume', text)}
-                isEditing={editingField === 'volume'}
-                onStartEdit={() => startEdit('volume')}
+                value={fields.capacity}
+                onChangeValue={(text) => updateField('capacity', text)}
+                isEditing={editingField === 'capacity'}
+                onStartEdit={() => startEdit('capacity')}
                 onFinishEdit={finishEdit}
               />
               <EditableField
