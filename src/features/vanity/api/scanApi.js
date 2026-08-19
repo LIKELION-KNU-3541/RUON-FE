@@ -19,9 +19,8 @@ export async function createScan(imageUri) {
     type: 'image/jpeg',
   });
 
-  return client.post('/scan', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+  // Content-Type을 수동 지정하지 않음 — boundary는 axios/RN이 FormData를 보고 자동으로 채워야 함
+  return client.post('/scan', formData);
 }
 
 // status: 'UPLOADED' | 'OCR_PROCESSING' | 'STRUCTURING' | 'ANALYZING' | 'IMAGE_SEARCHING' | 'COMPLETED' | 'FAILED'
