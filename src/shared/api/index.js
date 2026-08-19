@@ -1,12 +1,14 @@
 import axios from 'axios';
 
 const baseURL = (process.env.EXPO_PUBLIC_API_URL ?? '').replace(/\/$/, '');
+const accessToken = process.env.EXPO_PUBLIC_ACCESS_TOKEN?.trim();
 
 const api = axios.create({
   baseURL,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
+    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
   },
 });
 

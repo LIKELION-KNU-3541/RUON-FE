@@ -5,6 +5,7 @@ import RoutineStandardScreen from './screens/RoutineStandardScreen';
 import TomorrowRoutineScreen from './screens/TomorrowRoutineScreen';
 import {
   getTodayRoutine,
+  getTomorrowRoutine,
   toRoutineTimeLabel,
   toSkinFeelingLabel,
 } from './api/routineApi';
@@ -22,6 +23,7 @@ export default function RoutineRouter({
   const [mode, setMode] = useState('morning');
   const [conditionReturnScreen, setConditionReturnScreen] = useState('main');
   const [todayRoutine, setTodayRoutine] = useState(null);
+  const [tomorrowRoutine, setTomorrowRoutine] = useState(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -36,6 +38,20 @@ export default function RoutineRouter({
 
     return () => controller.abort();
   }, [userId]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    getTomorrowRoutine({ signal: controller.signal })
+      .then(setTomorrowRoutine)
+      .catch((requestError) => {
+        if (requestError.name !== 'CanceledError' && requestError.code !== 'ERR_CANCELED') {
+          setTomorrowRoutine(null);
+        }
+      });
+
+    return () => controller.abort();
+  }, []);
 
   const displayedConditions = todayRoutine?.skinFeelings?.map(toSkinFeelingLabel) ?? conditions;
   const displayedAvailableTime = todayRoutine?.routineTimeAvailable
@@ -78,7 +94,14 @@ export default function RoutineRouter({
   }
 
   if (screen === 'tomorrow') {
-    return <TomorrowRoutineScreen mode={mode} onBack={() => setScreen('main')} />;
+    return (
+      <TomorrowRoutineScreen
+        mode={mode}
+        initialRoutine={tomorrowRoutine}
+        onRoutineLoad={setTomorrowRoutine}
+        onBack={() => setScreen('main')}
+      />
+    );
   }
 
   return (
@@ -87,6 +110,7 @@ export default function RoutineRouter({
       conditions={displayedConditions}
       availableTime={displayedAvailableTime}
       selectedReaction={reactions[mode] ?? null}
+      tomorrowRoutine={tomorrowRoutine}
       onReactionChange={(selectedIndex) => onReactionChange?.(mode, selectedIndex)}
       onModeChange={setMode}
       onTabChange={onTabChange}

@@ -1,6 +1,7 @@
 import api from '../../../shared/api';
 import { ROUTINE_TIME_LABELS, SKIN_FEELING_LABELS } from '../constants/routineLabels';
 
+//오늘의 루틴 반환
 export async function getTodayRoutine(userId, { signal } = {}) {
   const numericUserId = Number(userId);
   if (!Number.isSafeInteger(numericUserId) || numericUserId <= 0) {
@@ -30,6 +31,7 @@ export async function createRoutineByCondition({
     throw new Error('피부 느낌을 직접 입력해주세요.');
   }
 
+  //오늘의 컨디션
   const response = await api.post('/api/v1/routines/condition', {
     userId: numericUserId,
     skinFeelings,
@@ -37,6 +39,25 @@ export async function createRoutineByCondition({
     routineTimeAvailable,
   });
   return response.data.data;
+}
+
+//내일 루틴 추천
+export async function getTomorrowRoutine({ signal } = {}) {
+  const response = await api.get('/api/v1/routines/tomorrow', { signal });
+  return response.data.data;
+}
+
+export function toTomorrowRoutineProduct(step) {
+  return {
+    id: step.productId,
+    productId: step.productId,
+    productName: step.productName,
+    brandName: step.brandName,
+    description: step.description,
+    image: step.imageUrl ? { uri: step.imageUrl } : undefined,
+    order: step.order,
+    action: step.action,
+  };
 }
 
 export function toSkinFeelingLabel(skinFeeling) {

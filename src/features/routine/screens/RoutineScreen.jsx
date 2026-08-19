@@ -37,6 +37,7 @@ export default function RoutinePage({
   conditions = [],
   availableTime = null,
   selectedReaction = null,
+  tomorrowRoutine = null,
   onReactionChange,
   onModeChange,
   onTabChange,
@@ -112,7 +113,7 @@ export default function RoutinePage({
         </View>
         <RoutineRecommendation
           theme={theme}
-          routine={routine}
+          recommendation={tomorrowRoutine}
           onPress={onOpenTomorrowRoutine}
         ></RoutineRecommendation>
       </ScrollView>
