@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ImageBackground, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-// TODO: 서버 연동 시 DUMMY_PRODUCTS import 삭제 및 API 응답 데이터 사용
-import { DUMMY_PRODUCTS } from '../data/dummyData';
 import ResearchAgainModal from '../components/ResearchAgainModal';
 import ResultIcon from '../../../../assets/icons/result_icon.svg';
 
@@ -10,22 +8,21 @@ const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
 
 /**
  * 분석 결과 확인 화면 ("이 제품이 맞나요?")
- * @param {object} product - 인식된 제품 데이터 (없으면 더미 첫 번째 제품 사용)
+ * @param {object} scanResult - AnalyzingScreen에서 넘어온 스캔 결과 ({ scanId, product, imageUrl, analysis })
  * @param {function} onClose - 닫기 (X)
  * @param {function} onConfirm - "네, 맞아요" 버튼
  * @param {function} onNavigateCamera - "제품 다시 찾기" 시트에서 "사진 촬영" 선택
  * @param {function} onNavigateFileUpload - "제품 다시 찾기" 시트에서 "파일 업로드" 선택
  */
 export default function ProductConfirmScreen({
-  product: productProp,
+  product: scanResult,
   onClose,
   onConfirm,
   onNavigateCamera,
   onNavigateFileUpload,
 }) {
-  // TODO: 서버 연동 시 아래 더미 폴백 삭제 (product은 항상 API 응답에서 옴)
-  const product = productProp ?? DUMMY_PRODUCTS[0];
   const [showResearchModal, setShowResearchModal] = useState(false);
+  const { product, imageUrl } = scanResult;
 
   const handleRetryCamera = () => {
     setShowResearchModal(false);
@@ -51,23 +48,23 @@ export default function ProductConfirmScreen({
         <Text style={styles.subtitle}>인식된 제품 정보를 확인해주세요.</Text>
 
         <View style={styles.imageCard}>
-          {product.image ? (
-            <Image source={{ uri: product.image }} style={styles.image} resizeMode="cover" />
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} style={styles.image} resizeMode="cover" />
           ) : (
             <Text style={styles.imagePlaceholder}>🧴</Text>
           )}
         </View>
 
-        <Text style={styles.productName}>{product.name}</Text>
+        <Text style={styles.productName}>{product.productName ?? '제품명을 확인할 수 없어요'}</Text>
 
         <View style={styles.infoBlock}>
           <View style={styles.infoLine}>
             <Text style={styles.infoText}>브랜드</Text>
-            <Text style={styles.infoText}>{product.brand}</Text>
+            <Text style={styles.infoText}>{product.brandName ?? '-'}</Text>
           </View>
           <View style={styles.infoLine}>
-            <Text style={styles.infoText}>카테고리</Text>
-            <Text style={styles.infoText}>{product.steps?.[0] ?? '-'}</Text>
+            <Text style={styles.infoText}>용량</Text>
+            <Text style={styles.infoText}>{product.capacity ?? '-'}</Text>
           </View>
         </View>
 
@@ -75,7 +72,7 @@ export default function ProductConfirmScreen({
           <TouchableOpacity style={styles.rejectBtn} activeOpacity={0.8} onPress={() => setShowResearchModal(true)}>
             <Text style={styles.rejectBtnText}>아니요</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.confirmBtn} activeOpacity={0.8} onPress={() => onConfirm?.(product)}>
+          <TouchableOpacity style={styles.confirmBtn} activeOpacity={0.8} onPress={() => onConfirm?.(scanResult)}>
             <Text style={styles.confirmBtnText}>네, 맞아요</Text>
           </TouchableOpacity>
         </View>
