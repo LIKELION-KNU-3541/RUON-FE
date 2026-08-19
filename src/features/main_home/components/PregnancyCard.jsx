@@ -29,12 +29,10 @@ const PREGNANCY_STAGE_LABELS = {
 const SKIN_CONCERN_LABELS = {
   DRYNESS: '건조함',
   SENSITIVITY: '민감함',
-  ACNE: '트러블',
   TROUBLE: '트러블',
   ITCHING: '가려움',
-  PIGMENTATION: '색소침착',
-  PIGMENT: '색소침착',
-  SWELLING: '붓기',
+  HYPERPIGMENTATION: '색소침착',
+  PUFFINESS: '붓기',
 };
 
 export default function PregnancyCard({ surveyData, userProfile }) {

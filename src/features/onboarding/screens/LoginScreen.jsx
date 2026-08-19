@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SvgXml } from 'react-native-svg';
 import InputGlass from '../../../shared/components/InputGlass';
 import { login } from '../api/authApi';
-import { saveAccessToken } from '../../../shared/api/tokenStorage';
+import {
+  clearSavedLoginEmail,
+  getSavedLoginEmail,
+  saveAccessToken,
+  saveLoginEmail,
+} from '../../../shared/api/tokenStorage';
 import { ApiError } from '../../../shared/api/client';
 
 const ruonLogoSvgXml = `<svg width="199" height="96" viewBox="0 0 199 96" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -31,7 +36,7 @@ const FIGMA_WIDTH = 360;
 const FIGMA_HEIGHT = 800;
 
 export default function LoginScreen({ onNext }) {
-  const [userId, setUserId] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberId, setRememberId] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -40,15 +45,36 @@ export default function LoginScreen({ onNext }) {
   const scaleW = (px) => (px / FIGMA_WIDTH) * SCREEN_WIDTH;
   const scaleH = (px) => (px / FIGMA_HEIGHT) * SCREEN_HEIGHT;
 
+  useEffect(() => {
+    let cancelled = false;
+
+    getSavedLoginEmail().then((savedEmail) => {
+      if (!cancelled && savedEmail) {
+        setEmail(savedEmail);
+        setRememberId(true);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleLogin = async () => {
-    if (!userId || !password) {
-      Alert.alert('알림', '아이디와 비밀번호를 입력해주세요.');
+    const normalizedEmail = email.trim();
+    if (!normalizedEmail || !password) {
+      Alert.alert('알림', '이메일과 비밀번호를 입력해주세요.');
       return;
     }
     setIsLoggingIn(true);
     try {
-      const { accessToken } = await login({ email: userId, password });
+      const { accessToken } = await login({ email: normalizedEmail, password });
+      if (!accessToken) {
+        throw new ApiError('INVALID_LOGIN_RESPONSE', '로그인 토큰을 받지 못했어요.');
+      }
       await saveAccessToken(accessToken);
+      if (rememberId) await saveLoginEmail(normalizedEmail);
+      else await clearSavedLoginEmail();
       onNext?.();
     } catch (e) {
       const message = e instanceof ApiError ? e.message : '로그인에 실패했어요.';
@@ -84,16 +110,26 @@ export default function LoginScreen({ onNext }) {
         </View>
 
         {/* 5. Login Form Controls (top: 286px) */}
-        <View style={{ position: 'absolute', left: scaleW(40), right: scaleW(40), top: scaleH(286), zIndex: 10 }}>
+        <View
+          importantForAutofill="noExcludeDescendants"
+          style={{ position: 'absolute', left: scaleW(40), right: scaleW(40), top: scaleH(286), zIndex: 10 }}
+        >
           <Text className="text-[#FFF9F1] text-[14px] font-semibold mb-3">로그인</Text>
 
           {/* ID Input */}
           <InputGlass glass="n" style={{ width: scaleW(280), height: scaleH(50) }} className="px-4 mb-4">
             <TextInput
-              value={userId}
-              onChangeText={setUserId}
-              placeholder="아이디"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="이메일"
               placeholderTextColor="#DEAA7A"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              autoComplete="off"
+              importantForAutofill="noExcludeDescendants"
+              textContentType="none"
+              returnKeyType="next"
               className="text-[#FFF9F1] text-[14px] p-0"
             />
           </InputGlass>
@@ -104,6 +140,12 @@ export default function LoginScreen({ onNext }) {
               value={password}
               onChangeText={setPassword}
               secureTextEntry
+              autoCapitalize="none"
+              autoComplete="off"
+              importantForAutofill="noExcludeDescendants"
+              textContentType="none"
+              returnKeyType="done"
+              onSubmitEditing={handleLogin}
               placeholder="비밀번호 (영문,숫자,특수문자 조합)"
               placeholderTextColor="#DEAA7A"
               className="text-[#FFF9F1] text-[12px] p-0"
@@ -117,7 +159,7 @@ export default function LoginScreen({ onNext }) {
             className="flex-row items-center mb-8"
           >
             <View className={`w-4 h-4 rounded-[4px] border border-white/40 mr-2 items-center justify-center ${rememberId ? 'bg-white' : 'bg-transparent'}`}>
-              {rememberId && <Text className="text-[#945C2D] text-[10px] font-bold">??</Text>}
+              {rememberId && <Text className="text-[#945C2D] text-[10px] font-bold">✓</Text>}
             </View>
             <Text className="text-[#FFF9F1] text-[12px]">아이디 저장</Text>
           </TouchableOpacity>
@@ -128,7 +170,7 @@ export default function LoginScreen({ onNext }) {
             onPress={handleLogin}
             disabled={isLoggingIn}
             style={{ height: scaleH(52) }}
-            className="w-full bg-[#FFF9F1] rounded-[16px] items-center justify-center shadow-lg"
+            className={`w-full bg-[#FFF9F1] rounded-[16px] items-center justify-center shadow-lg ${isLoggingIn ? 'opacity-70' : ''}`}
           >
             {isLoggingIn ? (
               <ActivityIndicator color="#945C2D" />

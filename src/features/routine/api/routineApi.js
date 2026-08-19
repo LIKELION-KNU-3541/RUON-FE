@@ -1,4 +1,4 @@
-import api from '../../../shared/api';
+import client from '../../../shared/api/client';
 import { ROUTINE_TIME_LABELS, SKIN_FEELING_LABELS } from '../constants/routineLabels';
 
 //오늘의 루틴 반환
@@ -7,11 +7,10 @@ export async function getTodayRoutine(userId, { signal } = {}) {
   if (!Number.isSafeInteger(numericUserId) || numericUserId <= 0) {
     throw new Error('올바른 사용자 ID가 필요해요.');
   }
-  const response = await api.get('/api/v1/routines/today', {
+  return client.get('/routines/today', {
     params: { userId: numericUserId },
     signal,
   });
-  return response.data.data;
 }
 
 export async function createRoutineByCondition({
@@ -32,19 +31,17 @@ export async function createRoutineByCondition({
   }
 
   //오늘의 컨디션
-  const response = await api.post('/api/v1/routines/condition', {
+  return client.post('/routines/condition', {
     userId: numericUserId,
     skinFeelings,
     ...(skinFeelings.includes('CUSTOM') ? { customFeeling: customFeeling.trim() } : {}),
     routineTimeAvailable,
   });
-  return response.data.data;
 }
 
 //내일 루틴 추천
 export async function getTomorrowRoutine({ signal } = {}) {
-  const response = await api.get('/api/v1/routines/tomorrow', { signal });
-  return response.data.data;
+  return client.get('/routines/tomorrow', { signal });
 }
 
 //루틴 반응 기록
@@ -60,19 +57,11 @@ export async function submitRoutineReaction(routineId, score) {
   }
 
   try {
-    const response = await api.post(`/api/v1/routines/${numericRoutineId}/reaction`, {
+    return await client.post(`/routines/${numericRoutineId}/reaction`, {
       score: numericScore,
     });
-
-    if (response.data?.success === false) {
-      throw new Error(response.data.error?.message ?? '반응을 기록하지 못했어요.');
-    }
-
-    return response.data.data;
   } catch (requestError) {
-    const message = requestError.response?.data?.error?.message
-      ?? requestError.response?.data?.message
-      ?? requestError.message
+    const message = requestError.message
       ?? '반응을 기록하지 못했어요.';
     throw new Error(message);
   }

@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 
 const ACCESS_TOKEN_KEY = 'ruon_access_token';
 const SURVEY_COMPLETED_KEY = 'ruon_survey_completed';
+const SAVED_LOGIN_EMAIL_KEY = 'ruon_saved_login_email';
 
 export async function saveAccessToken(token) {
   await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, token);
@@ -13,6 +14,18 @@ export async function getAccessToken() {
 
 export async function clearAccessToken() {
   await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
+}
+
+export async function saveLoginEmail(email) {
+  await SecureStore.setItemAsync(SAVED_LOGIN_EMAIL_KEY, email);
+}
+
+export async function getSavedLoginEmail() {
+  return SecureStore.getItemAsync(SAVED_LOGIN_EMAIL_KEY);
+}
+
+export async function clearSavedLoginEmail() {
+  await SecureStore.deleteItemAsync(SAVED_LOGIN_EMAIL_KEY);
 }
 
 // 설문조사를 최초 1회만 받기 위한 로컬 완료 플래그

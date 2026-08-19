@@ -27,7 +27,7 @@ export default function HomeScreen({
   const [todayRoutine, setTodayRoutine] = React.useState(null);
   const [routineLoading, setRoutineLoading] = React.useState(true);
   const profile = userProfile?.data ?? userProfile;
-  const userName = profile?.name?.trim() || '지은';
+  const userName = profile?.name?.trim() || '회원';
 
   React.useEffect(() => {
     const controller = new AbortController();
