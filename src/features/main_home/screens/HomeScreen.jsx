@@ -26,6 +26,7 @@ export default function HomeScreen({
   onOpenCondition,
   onConditionLoad,
   onTabChange,
+  onOpenRoutine,
   userId = process.env.EXPO_PUBLIC_USER_ID ?? 1,
 }) {
   const { scale, moderateScale } = useResponsiveScale();
@@ -97,8 +98,18 @@ export default function HomeScreen({
           <ConditionCard options={displayedConditions} />
           <SectionHeader title="루틴 요약" />
           <View className="flex-row gap-[18px]">
-            <RoutineCard icon={SunIcon} title="아침 루틴" description={morningDescription} />
-            <RoutineCard icon={MoonIcon} title="저녁 루틴" description={eveningDescription} />
+            <RoutineCard
+              icon={SunIcon}
+              title="아침 루틴"
+              description={morningDescription}
+              onPress={() => onOpenRoutine?.('morning')}
+            />
+            <RoutineCard
+              icon={MoonIcon}
+              title="저녁 루틴"
+              description={eveningDescription}
+              onPress={() => onOpenRoutine?.('evening')}
+            />
           </View>
           <View className="-mx-[24px] mt-[28px] h-[6px] bg-[#D8C0AD]" />
           <InfoBox />

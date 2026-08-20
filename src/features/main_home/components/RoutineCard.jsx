@@ -3,12 +3,17 @@ import { Text, TouchableOpacity, View } from 'react-native';
 import Rarrow from '../../../../assets/icons/Rarrow.svg';
 import { useResponsiveScale } from '../../../shared/utils/responsive';
 
-export default function RoutineCard({ icon, title, description }) {
+export default function RoutineCard({ icon, title, description, onPress }) {
   const Icon = icon;
   const { scale, moderateScale } = useResponsiveScale();
 
   return (
-    <TouchableOpacity className="flex-1 bg-white" style={{ borderRadius: scale(16), paddingVertical: 24, paddingHorizontal: 20 }} activeOpacity={0.72}>
+    <TouchableOpacity
+      className="flex-1 bg-white"
+      style={{ borderRadius: scale(16), paddingVertical: 24, paddingHorizontal: 20 }}
+      activeOpacity={0.72}
+      onPress={onPress}
+    >
       <View className="flex-row items-center">
         <View className="mr-[10px]">
         <Icon

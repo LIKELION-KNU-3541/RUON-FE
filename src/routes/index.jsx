@@ -108,6 +108,10 @@ export default function AppRoutes({ surveyData }) {
         setCustomFeeling(nextCustomFeeling);
       }}
       onTabChange={setActiveTab}
+      onOpenRoutine={(mode) => {
+        setRoutineReturnState({ screen: 'main', mode });
+        setActiveTab('routine');
+      }}
     />
   );
 }
