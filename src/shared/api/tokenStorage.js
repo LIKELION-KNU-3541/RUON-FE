@@ -2,6 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 
 const ACCESS_TOKEN_KEY = 'ruon_access_token';
 const SURVEY_COMPLETED_KEY = 'ruon_survey_completed';
+const REMEMBERED_ID_KEY = 'ruon_remembered_id';
 
 export async function saveAccessToken(token) {
   await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, token);
@@ -23,4 +24,17 @@ export async function saveSurveyCompleted() {
 
 export async function isSurveyCompleted() {
   return (await SecureStore.getItemAsync(SURVEY_COMPLETED_KEY)) === '1';
+}
+
+// 로그인 화면 "아이디 저장" 체크박스용
+export async function saveRememberedId(id) {
+  await SecureStore.setItemAsync(REMEMBERED_ID_KEY, id);
+}
+
+export async function getRememberedId() {
+  return SecureStore.getItemAsync(REMEMBERED_ID_KEY);
+}
+
+export async function clearRememberedId() {
+  await SecureStore.deleteItemAsync(REMEMBERED_ID_KEY);
 }

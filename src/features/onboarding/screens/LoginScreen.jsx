@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { SvgXml } from 'react-native-svg';
 import InputGlass from '../../../shared/components/InputGlass';
 import { login } from '../api/authApi';
-import { saveAccessToken } from '../../../shared/api/tokenStorage';
+import {
+  saveAccessToken,
+  saveRememberedId,
+  getRememberedId,
+  clearRememberedId,
+} from '../../../shared/api/tokenStorage';
 import { ApiError } from '../../../shared/api/client';
 
 const ruonLogoSvgXml = `<svg width="199" height="96" viewBox="0 0 199 96" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -40,6 +45,15 @@ export default function LoginScreen({ onNext }) {
   const scaleW = (px) => (px / FIGMA_WIDTH) * SCREEN_WIDTH;
   const scaleH = (px) => (px / FIGMA_HEIGHT) * SCREEN_HEIGHT;
 
+  useEffect(() => {
+    getRememberedId().then((savedId) => {
+      if (savedId) {
+        setUserId(savedId);
+        setRememberId(true);
+      }
+    });
+  }, []);
+
   const handleLogin = async () => {
     if (!userId || !password) {
       Alert.alert('알림', '아이디와 비밀번호를 입력해주세요.');
@@ -49,6 +63,11 @@ export default function LoginScreen({ onNext }) {
     try {
       const { accessToken } = await login({ email: userId, password });
       await saveAccessToken(accessToken);
+      if (rememberId) {
+        await saveRememberedId(userId);
+      } else {
+        await clearRememberedId();
+      }
       onNext?.();
     } catch (e) {
       const message = e instanceof ApiError ? e.message : '로그인에 실패했어요.';
@@ -117,7 +136,7 @@ export default function LoginScreen({ onNext }) {
             className="flex-row items-center mb-8"
           >
             <View className={`w-4 h-4 rounded-[4px] border border-white/40 mr-2 items-center justify-center ${rememberId ? 'bg-white' : 'bg-transparent'}`}>
-              {rememberId && <Text className="text-[#945C2D] text-[10px] font-bold">??</Text>}
+              {rememberId && <Text className="text-[#945C2D] text-[10px] font-bold">✓</Text>}
             </View>
             <Text className="text-[#FFF9F1] text-[12px]">아이디 저장</Text>
           </TouchableOpacity>

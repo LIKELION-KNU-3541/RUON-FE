@@ -155,6 +155,19 @@ export default function VanityPage({
     loadSummary();
   };
 
+  const handleConfirmRestore = async () => {
+    if (selectedIds.length === 0) return;
+    try {
+      await Promise.all(selectedIds.map((id) => updateUsageStatus(id, 'IN_USE')));
+    } catch (e) {
+      // TODO: 에러 처리
+    }
+    setIsDeleteMode(false);
+    setSelectedIds([]);
+    loadProducts();
+    loadSummary();
+  };
+
   return (
     <ImageBackground source={backgroundSource} resizeMode="cover" style={styles.root}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFF9F1" />
@@ -362,11 +375,17 @@ export default function VanityPage({
             </BlurView>
           </TouchableOpacity>
 
-          <TouchableOpacity activeOpacity={0.85} onPress={handleConfirmDiscontinue} style={{ marginTop: 10 }}>
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={viewingDiscontinued ? handleConfirmRestore : handleConfirmDiscontinue}
+            style={{ marginTop: 10 }}
+          >
             <BlurView intensity={20} tint="light" style={[styles.discontinuePill, { height: scale(52), borderRadius: scale(40) }]}>
               <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(148, 92, 45, 0.3)', borderRadius: scale(40) }]} />
-              <Text style={{ fontSize: 16, marginRight: 8 }}>🚫</Text>
-              <Text style={styles.discontinuePillText}>사용 중단 {selectedIds.length}</Text>
+              <Text style={{ fontSize: 16, marginRight: 8 }}>{viewingDiscontinued ? '✅' : '🚫'}</Text>
+              <Text style={styles.discontinuePillText}>
+                {viewingDiscontinued ? '사용 중단 해제' : '사용 중단'} {selectedIds.length}
+              </Text>
             </BlurView>
           </TouchableOpacity>
 
