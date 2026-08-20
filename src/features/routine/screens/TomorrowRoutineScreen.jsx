@@ -11,7 +11,7 @@ import VanityIcon from '../../../../assets/icons/vanity-icon.svg';
 
 const eveningBackgroundSource = require('../../../../assets/images/TodayCheckIn-bg.png');
 
-export default function TomorrowRoutineScreen({ mode = 'morning', onBack, products, initialRoutine, onRoutineLoad }) {
+export default function TomorrowRoutineScreen({ mode = 'morning', onBack, onOpenProductDetail, products, initialRoutine, onRoutineLoad }) {
   const { moderateScale } = useResponsiveScale();
   const theme = ROUTINE_THEMES[mode];
   const [tomorrowRoutine, setTomorrowRoutine] = React.useState(initialRoutine ?? null);
@@ -110,6 +110,7 @@ export default function TomorrowRoutineScreen({ mode = 'morning', onBack, produc
                 product={product}
                 index={index}
                 theme={theme}
+                onPress={onOpenProductDetail}
               />
             ))}
           </View>

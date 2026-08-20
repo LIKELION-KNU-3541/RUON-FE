@@ -12,21 +12,29 @@ import {
 } from './api/routineApi';
 
 export default function RoutineRouter({
+  initialScreen = 'main',
+  initialMode = 'morning',
+  onInitialStateConsumed,
   conditions = [],
   availableTime = null,
   reactions = {},
   onReactionChange,
   onConditionChange,
   onTabChange,
+  onOpenProductDetail,
   userId = process.env.EXPO_PUBLIC_USER_ID ?? 1,
 }) {
-  const [screen, setScreen] = useState('main');
-  const [mode, setMode] = useState('morning');
+  const [screen, setScreen] = useState(initialScreen);
+  const [mode, setMode] = useState(initialMode);
   const [conditionReturnScreen, setConditionReturnScreen] = useState('main');
   const [todayRoutine, setTodayRoutine] = useState(null);
   const [tomorrowRoutine, setTomorrowRoutine] = useState(null);
   const [reactionSubmitting, setReactionSubmitting] = useState(false);
   const [reactionError, setReactionError] = useState(null);
+
+  useEffect(() => {
+    onInitialStateConsumed?.();
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -117,6 +125,7 @@ export default function RoutineRouter({
         userId={userId}
         onBack={() => setScreen('main')}
         onOpenCondition={() => openCondition('standard')}
+        onOpenProductDetail={(product) => onOpenProductDetail?.(product, { screen: 'standard', mode })}
       />
     );
   }
@@ -128,6 +137,7 @@ export default function RoutineRouter({
         initialRoutine={tomorrowRoutine}
         onRoutineLoad={setTomorrowRoutine}
         onBack={() => setScreen('main')}
+        onOpenProductDetail={(product) => onOpenProductDetail?.(product, { screen: 'tomorrow', mode })}
       />
     );
   }

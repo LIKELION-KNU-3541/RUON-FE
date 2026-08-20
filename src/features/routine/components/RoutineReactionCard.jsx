@@ -51,7 +51,13 @@ const ITEMS = [
 ];
 
 
-export default function RoutineReactionCard({ theme, selectedIndex = null, onSelect, disabled = false }) {
+export default function RoutineReactionCard({
+  theme,
+  selectedIndex = null,
+  onSelect,
+  submitting = false,
+  error = null,
+}) {
   const { scale, moderateScale } = useResponsiveScale();
   const evening = theme?.screenBackground === '#9A5B2C';
   const labelColor = evening ? '#AAAAAA' : '#3F3F3F';
@@ -73,7 +79,9 @@ export default function RoutineReactionCard({ theme, selectedIndex = null, onSel
         className="items-center px-[20px] py-[10px]"
         style={{ alignSelf: 'stretch' }}
       >
-        <Text className="font-pretendard-regular" style={{ color: theme.text, fontSize: moderateScale(10) }}>오늘 루틴 어떠셨나요?</Text>
+        <Text className="font-pretendard-regular" style={{ color: theme.text, fontSize: moderateScale(10) }}>
+        오늘 루틴 어떠셨나요?
+        </Text>
         <View className="flex-row items-center justify-between">
         {ITEMS.map(([MorningFaceIcon, EveningFaceIcon, SelectedFaceIcon, label], index) => {
           const isSelected = selectedIndex === index;
@@ -85,9 +93,9 @@ export default function RoutineReactionCard({ theme, selectedIndex = null, onSel
           <Pressable
             className="flex-1 items-center"
             key={label}
-            disabled={disabled}
+            disabled={submitting}
             onPress={() => onSelect?.(index)}
-            style={{ opacity: disabled ? 0.6 : 1 }}
+            style={{ opacity: submitting ? 0.55 : 1 }}
           >
             <View
               className="items-center justify-center my-[12.5px]"
@@ -111,6 +119,14 @@ export default function RoutineReactionCard({ theme, selectedIndex = null, onSel
         })}
 
         </View>
+        {error && (
+          <Text
+            className="font-pretendard-regular mt-[8px] text-center"
+            style={{ color: '#D14343', fontSize: moderateScale(9) }}
+          >
+            {error}
+          </Text>
+        )}
       </ImageBackground>
     </View>
 

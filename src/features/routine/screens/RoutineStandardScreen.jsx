@@ -89,14 +89,13 @@ export default function RoutineStandardScreen({
   mode = 'morning',
   onBack,
   onOpenCondition,
+  onOpenProductDetail,
   conditions = [],
   availableTime = null,
   userId = process.env.EXPO_PUBLIC_USER_ID ?? 1,
   products,
 }) {
-  const [conditionModalVisible, setConditionModalVisible] = React.useState(
-    conditions.length === 0 || !availableTime,
-  );
+  const [conditionModalVisible, setConditionModalVisible] = React.useState(false);
   const theme = ROUTINE_THEMES[mode];
   const title = mode === 'evening' ? '저녁 루틴' : '아침 루틴';
   const [generatedRoutine, setGeneratedRoutine] = React.useState(null);
@@ -142,6 +141,13 @@ export default function RoutineStandardScreen({
     : availableTime;
   const hasConditions = displayedConditions.length > 0;
   const hasAvailableTime = Boolean(displayedAvailableTime);
+  const routineResolved = Boolean(products) || (!loading && (generatedRoutine !== null || error !== null));
+
+  React.useEffect(() => {
+    if (!routineResolved) return;
+    setConditionModalVisible(!hasConditions || !hasAvailableTime);
+  }, [hasAvailableTime, hasConditions, routineResolved]);
+
   const eveningCriteriaColors = mode === 'evening'
     ? {
         backgroundColor: 'rgba(255,255,255,0.80)',
@@ -210,6 +216,7 @@ export default function RoutineStandardScreen({
               product={product}
               index={index}
               theme={theme}
+              onPress={onOpenProductDetail}
             />
           ))}
         </View>

@@ -75,7 +75,7 @@ export default function PregnancyCard({ surveyData, userProfile }) {
           </Text>
         ) : null}
       </View>
-      <Rarrow width={scale(7)} height={scale(14)} />
+      <Rarrow width={scale(7)} height={scale(14)} color="#BE9D82" />
     </TouchableOpacity>
   );
 }

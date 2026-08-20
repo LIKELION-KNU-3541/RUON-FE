@@ -11,7 +11,11 @@ import { useResponsiveScale } from '../../../shared/utils/responsive';
 import ConditionCard from '../components/ConditionCard';
 import PregnancyCard from '../components/PregnancyCard';
 import RoutineCard from '../components/RoutineCard';
-import { getTodayRoutine, toRoutineTimeLabel } from '../../routine/api/routineApi';
+import {
+  getTodayRoutine,
+  toRoutineTimeLabel,
+  toSkinFeelingLabel,
+} from '../../routine/api/routineApi';
 
 const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
 
@@ -20,6 +24,7 @@ export default function HomeScreen({
   surveyData,
   userProfile,
   onOpenCondition,
+  onConditionLoad,
   onTabChange,
   userId = process.env.EXPO_PUBLIC_USER_ID ?? 1,
 }) {
@@ -34,7 +39,16 @@ export default function HomeScreen({
 
     setRoutineLoading(true);
     getTodayRoutine(userId, { signal: controller.signal })
-      .then(setTodayRoutine)
+      .then((routine) => {
+        setTodayRoutine(routine);
+        onConditionLoad?.(
+          routine?.skinFeelings?.map(toSkinFeelingLabel) ?? [],
+          routine?.routineTimeAvailable
+            ? toRoutineTimeLabel(routine.routineTimeAvailable)
+            : null,
+          routine?.customFeeling ?? '',
+        );
+      })
       .catch((requestError) => {
         if (requestError.name !== 'CanceledError' && requestError.code !== 'ERR_CANCELED') {
           setTodayRoutine(null);
@@ -50,6 +64,7 @@ export default function HomeScreen({
   const availableTimeLabel = todayRoutine?.routineTimeAvailable
     ? toRoutineTimeLabel(todayRoutine.routineTimeAvailable)
     : '가능 시간 미등록';
+  const displayedConditions = todayRoutine?.skinFeelings?.map(toSkinFeelingLabel) ?? conditions;
   const morningStepCount = todayRoutine?.steps?.filter(
     (step) => step.timeOfDay === 'MORNING',
   ).length ?? 0;
@@ -79,7 +94,7 @@ export default function HomeScreen({
           </View>
           <PregnancyCard surveyData={surveyData} userProfile={profile} />
           <SectionHeader title="오늘의 컨디션" onPress={onOpenCondition} />
-          <ConditionCard options={conditions} />
+          <ConditionCard options={displayedConditions} />
           <SectionHeader title="루틴 요약" />
           <View className="flex-row gap-[18px]">
             <RoutineCard icon={SunIcon} title="아침 루틴" description={morningDescription} />

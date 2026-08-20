@@ -21,7 +21,7 @@ export default function RoutineCard({ icon, title, description }) {
         <Text className="mr-[10px] font-pretendard-semibold text-ruon-main1" style={{ fontSize: moderateScale(16) }}>
           {title}
         </Text>
-        <Rarrow width={scale(6)} height={scale(11)} />
+        <Rarrow width={scale(6)} height={scale(11)} color="#BE9D82" />
       </View>
       <Text className="mt-[10px] font-pretendard-regular text-ruon-cardText" style={{ fontSize: moderateScale(15), lineHeight: moderateScale(25) }}>
         {description}

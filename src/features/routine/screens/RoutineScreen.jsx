@@ -57,7 +57,7 @@ export default function RoutinePage({
       .filter((step) => step.timeOfDay === timeOfDay)
       .sort((a, b) => a.stepOrder - b.stepOrder)
       .map((step) => ({
-        id: step.stepId ?? step.productId,
+        id: step.stepId ?? `${step.productId}-${step.timeOfDay}-${step.stepOrder}`,
         label: step.productName,
         image: step.imageUrl ? { uri: step.imageUrl } : undefined,
       }));

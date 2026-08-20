@@ -37,7 +37,7 @@ export default function RoutineProduct({ product, index, theme, onPress }) {
         className="h-[216px] flex-row"
         style={{ alignSelf: 'stretch' }}
       >
-        <View className="w-[32%] px-[18px] pb-[16px] pt-[15px]">
+        <View className="w-[32%] px-[18px] pb-[14px] pt-[15px]">
           <ImageBackground
             source={showEveningImage ? eveningNumberBackground : undefined}
             resizeMode="stretch"
@@ -59,7 +59,7 @@ export default function RoutineProduct({ product, index, theme, onPress }) {
           <Image
             source={product.image}
             resizeMode="contain"
-            style={{ width: scale(60), height: scale(110), margin: scale(20), alignSelf: 'center' }}
+            style={{ width: scale(80), height: scale(132), marginTop: scale(10) }}
           />
         </View>
 

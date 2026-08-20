@@ -69,7 +69,7 @@ export async function submitRoutineReaction(routineId, score) {
 
 export function toTomorrowRoutineProduct(step) {
   return {
-    id: step.productId,
+    id: step.stepId ?? `${step.productId}-${step.order}`,
     productId: step.productId,
     productName: step.productName,
     brandName: step.brandName,
