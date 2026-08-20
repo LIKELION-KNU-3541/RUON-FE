@@ -14,12 +14,12 @@ import ProductDetailScreen from './screens/ProductDetailScreen';
  *   main → detail (기존 제품 탭)
  * @param {function} onTabChange - 바텀 네비 탭 전환 콜백 (AppRoutes로 전달)
  */
-export default function VanityRouter({ onTabChange }) {
-  const [screen, setScreen] = useState('main');
+export default function VanityRouter({ onTabChange, initialProduct, onExternalDetailBack }) {
+  const [screen, setScreen] = useState(initialProduct ? 'detail' : 'main');
   const [photoUri, setPhotoUri] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [detailProduct, setDetailProduct] = useState(null);
-  const [detailOrigin, setDetailOrigin] = useState('main');
+  const [detailProduct, setDetailProduct] = useState(initialProduct ?? null);
+  const [detailOrigin, setDetailOrigin] = useState(initialProduct ? 'external' : 'main');
 
   // ── 화면 이동 헬퍼 ──────────────────────────────────────────────
   const goMain = () => setScreen('main');
@@ -117,6 +117,8 @@ export default function VanityRouter({ onTabChange }) {
         onBack={() => {
           if (detailOrigin === 'ocrResult') {
             goOcrResult(selectedProduct);
+          } else if (detailOrigin === 'external') {
+            onExternalDetailBack?.();
           } else {
             goMain();
           }

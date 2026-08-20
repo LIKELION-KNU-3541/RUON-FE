@@ -22,13 +22,9 @@ const eveningBackgroundSource = require('../../../../assets/images/TodayCheckIn-
 const ROUTINES = {
   morning: {
     label: '아침', previewTitle: '아침 루틴 미리보기',
-    products: [{ label: '클렌징 워터', image: require("../../../../assets/images/CleansingWater.png") }, { label: '수딩젤', image: require("../../../../assets/images/SoothingGel.png") }, { label: '모이스처 로션', image: require("../../../../assets/images/Rotion.png") }],
-    tipCondition: '건조', tipTitle: '내일은 보습을 먼저 챙겨요', tipDescription: '기록된 반응을 바탕으로\n세정을 줄이고 보습 중심으로 조정했어요.',
   },
   evening: {
     label: '저녁', previewTitle: '저녁 루틴 미리보기',
-    products: [{ label: '클렌징 워터', image: require("../../../../assets/images/CleansingWater.png") }, { label: '수딩 토너', image: require("../../../../assets/images/SoothingToner.png") }, { label: '모이스처 로션', image: require("../../../../assets/images/Rotion.png") }, { label: '집중 크림', image: require("../../../../assets/images/Cream.png") }],
-    tipCondition: '편안한',tipTitle: '오늘의 보습 루틴을 유지해요', tipDescription: '오늘 피부 컨디션도 보고 다음 루틴도 이어가요.',
   },
 };
 
@@ -37,6 +33,10 @@ export default function RoutinePage({
   conditions = [],
   availableTime = null,
   selectedReaction = null,
+  todayRoutine = null,
+  tomorrowRoutine = null,
+  reactionSubmitting = false,
+  reactionError = null,
   onReactionChange,
   onModeChange,
   onTabChange,
@@ -50,6 +50,18 @@ export default function RoutinePage({
   const evening = mode === 'evening';
   const hasConditions = conditions.length > 0;
   const hasAvailableTime = Boolean(availableTime);
+  const previewProducts = React.useMemo(() => {
+    const timeOfDay = evening ? 'EVENING' : 'MORNING';
+
+    return (todayRoutine?.steps ?? [])
+      .filter((step) => step.timeOfDay === timeOfDay)
+      .sort((a, b) => a.stepOrder - b.stepOrder)
+      .map((step) => ({
+        id: step.stepId ?? `${step.productId}-${step.timeOfDay}-${step.stepOrder}`,
+        label: step.productName,
+        image: step.imageUrl ? { uri: step.imageUrl } : undefined,
+      }));
+  }, [evening, todayRoutine]);
 
   const content = (
     <SafeAreaView className="flex-1">
@@ -94,7 +106,7 @@ export default function RoutinePage({
           theme={theme}
           onPress={onOpenStandard}
         ></SectionHeader>
-        <RoutinePreview products={routine.products} evening={evening} />
+        <RoutinePreview products={previewProducts} evening={evening} />
 
         <View className="mt-[30px] mb-[10px] flex-row justify-between">
           <Text className="font-pretendard-semibold " style={{fontSize: moderateScale(14), color: theme.text}} >반응 기록</Text>
@@ -104,7 +116,16 @@ export default function RoutinePage({
           theme={theme}
           selectedIndex={selectedReaction}
           onSelect={onReactionChange}
+          disabled={reactionSubmitting}
         ></RoutineReactionCard>
+        {reactionError ? (
+          <Text
+            className="mt-[8px] text-center font-pretendard-medium"
+            style={{ color: '#D14343', fontSize: moderateScale(10) }}
+          >
+            {reactionError}
+          </Text>
+        ) : null}
       
         <View className="mt-[30px] mb-[10px] flex-row gap-[10px]">
           <VanityIcon fill={theme.text}></VanityIcon>
@@ -112,7 +133,7 @@ export default function RoutinePage({
         </View>
         <RoutineRecommendation
           theme={theme}
-          routine={routine}
+          recommendation={tomorrowRoutine}
           onPress={onOpenTomorrowRoutine}
         ></RoutineRecommendation>
       </ScrollView>

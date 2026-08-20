@@ -26,7 +26,8 @@ const STATUS_STEP = {
 };
 
 const POLL_INTERVAL_MS = 1500;
-const MAX_POLLS = 40; // 폴링당 최대 약 60초
+const SCAN_MAX_POLLS = 120; // OCR/RAG 처리 대기: 최대 약 3분
+const ANALYSIS_MAX_POLLS = 120;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -72,21 +73,30 @@ export default function AnalyzingScreen({ photoUri, onBack, onComplete }) {
         const { scanId } = await createScan(photoUri);
 
         let scan = null;
-        for (let i = 0; i < MAX_POLLS; i += 1) {
+        for (let i = 0; i < SCAN_MAX_POLLS; i += 1) {
           if (cancelled) return;
           scan = await getScan(scanId);
           if (scan.status === 'COMPLETED' || scan.status === 'FAILED') break;
           setCurrentStep(STATUS_STEP[scan.status] ?? 0);
           await sleep(POLL_INTERVAL_MS);
         }
+        if (scan?.status === 'FAILED') {
+          const failureMessage = scan.errorMessage
+            ?? scan.failureReason
+            ?? '제품 인식에 실패했어요. 제품명과 전성분이 선명하게 보이는 사진으로 다시 시도해주세요.';
+          throw new ApiError('SCAN_FAILED', failureMessage);
+        }
         if (!scan || scan.status !== 'COMPLETED') {
-          throw new ApiError('SCAN_FAILED', '제품 인식에 실패했어요. 다른 사진으로 다시 시도해주세요.');
+          throw new ApiError(
+            'SCAN_TIMEOUT',
+            '제품 분석이 예상보다 오래 걸리고 있어요. 잠시 후 다시 시도해주세요.',
+          );
         }
         if (cancelled) return;
         setCurrentStep(2);
 
         let analysis = null;
-        for (let i = 0; i < MAX_POLLS; i += 1) {
+        for (let i = 0; i < ANALYSIS_MAX_POLLS; i += 1) {
           if (cancelled) return;
           try {
             analysis = await getScanAnalysis(scanId);
