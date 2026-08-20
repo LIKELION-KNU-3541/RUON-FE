@@ -7,6 +7,7 @@ import SurveyDetailScreen from './SurveyDetailScreen';
 import SurveySummaryScreen from './SurveySummaryScreen';
 import { submitSurvey } from '../api/surveyApi';
 import { mapSurveyDataToApiPayload } from '../api/surveyMapping';
+import { saveSurveyCompleted, isSurveyCompleted } from '../../../shared/api/tokenStorage';
 
 const SHOW_DEMO_NAV = false;
 
@@ -33,6 +34,15 @@ export default function OnboardingFlow({ onComplete, startStep = 2 }) {
     if (currentStep < 6) setCurrentStep(currentStep + 1);
   };
 
+  // 로그인 성공 직후 호출. 이미 설문을 마친 계정이면 Welcome/설문을 건너뛰고 바로 홈으로.
+  const handleLoginSuccess = async () => {
+    if (await isSurveyCompleted()) {
+      onComplete?.(surveyData);
+    } else {
+      nextStep();
+    }
+  };
+
   const prevStep = () => {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
@@ -46,6 +56,7 @@ export default function OnboardingFlow({ onComplete, startStep = 2 }) {
     setIsSubmitting(true);
     try {
       await submitSurvey(mapSurveyDataToApiPayload(surveyData));
+      await saveSurveyCompleted();
       onComplete?.(surveyData);
     } catch (e) {
       Alert.alert('알림', '설문 저장에 실패했어요. 다시 시도해주세요.');
