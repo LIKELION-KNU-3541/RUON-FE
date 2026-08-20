@@ -183,7 +183,7 @@ export default function LoginScreen({ onNext }) {
         {/* 6. Signup Prompt Footer (top: 648px) */}
         <View style={{ position: 'absolute', left: 0, right: 0, top: scaleH(648), zIndex: 10 }} className="flex-row justify-center items-center">
           <Text className="text-[#FFF9F1]/70 text-[12px] mr-2">계정이 없으신가요?</Text>
-          <TouchableOpacity onPress={onNext}>
+          <TouchableOpacity>
             <Text className="text-[#FFF9F1] text-[12px] font-bold underline">회원가입</Text>
           </TouchableOpacity>
         </View>

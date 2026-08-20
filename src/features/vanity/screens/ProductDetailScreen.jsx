@@ -16,13 +16,19 @@ import { getProduct, createProduct } from '../api/productsApi';
 import { ApiError } from '../../../shared/api/client';
 import StatusIcon1 from '../../../../assets/icons/vanityPage_icon1.svg';
 import StatusIcon2 from '../../../../assets/icons/vanityPage_icon2.svg';
+import StatusIcon3 from '../../../../assets/icons/vanityPage_icon3.svg';
 import StatusIcon4 from '../../../../assets/icons/vanityPage_icon4.svg';
 import CareIcon from '../../../../assets/icons/result_green_icon.svg';
 
 const backgroundSource = require('../../../../assets/images/MainHome-bg.png');
 
-// Card.iconType -> 표시 아이콘
-function CardIcon({ iconType }) {
+// 백엔드가 "잠시 보류"/"선택 사용"을 둘 다 iconType=WARNING으로 보내서 iconType만으로는 구분이 안 됨.
+// title로 구분해서 VanityPage의 카테고리별 아이콘(icon1~4)과 색을 맞춘다.
+function CardIcon({ title, iconType }) {
+  if (title === '잠시 보류') return <StatusIcon2 width={30} height={30} />;
+  if (title === '선택 사용') return <StatusIcon3 width={30} height={30} />;
+  if (title === '추가 확인') return <StatusIcon4 width={30} height={30} />;
+  if (title === '사용 유지') return <StatusIcon1 width={30} height={30} />;
   if (iconType === 'BENEFIT') {
     return (
       <View style={styles.careIconCircle}>
@@ -30,8 +36,6 @@ function CardIcon({ iconType }) {
       </View>
     );
   }
-  if (iconType === 'WARNING') return <StatusIcon2 width={30} height={30} />;
-  if (iconType === 'CHECK') return <StatusIcon1 width={30} height={30} />;
   return <StatusIcon4 width={30} height={30} />;
 }
 
@@ -148,7 +152,7 @@ export default function ProductDetailScreen({ product: productProp, onBack, onAd
           {/* 안전성 분석 카드 */}
           {detail.primaryCard && (
             <View style={styles.statusCard}>
-              <CardIcon iconType={detail.primaryCard.iconType} />
+              <CardIcon title={detail.primaryCard.title} iconType={detail.primaryCard.iconType} />
               <View style={styles.statusTextCol}>
                 <Text style={styles.statusTitle}>{detail.primaryCard.title}</Text>
                 <Text style={styles.statusDesc}>{detail.primaryCard.description}</Text>
@@ -159,7 +163,7 @@ export default function ProductDetailScreen({ product: productProp, onBack, onAd
           {/* 케어 효능 카드 */}
           {detail.secondaryCard && (
             <View style={styles.statusCard}>
-              <CardIcon iconType={detail.secondaryCard.iconType} />
+              <CardIcon title={detail.secondaryCard.title} iconType={detail.secondaryCard.iconType} />
               <View style={styles.statusTextCol}>
                 <Text style={styles.statusTitle}>{detail.secondaryCard.title}</Text>
                 <Text style={styles.statusDesc}>{detail.secondaryCard.description}</Text>

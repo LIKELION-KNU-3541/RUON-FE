@@ -8,6 +8,9 @@ import { setUnauthorizedHandler } from './shared/api/client';
 // TEMP_DEBUG_RESET_BUTTON: 아래 import, 버튼 JSX 블록, styles 전부 지우면 깔끔하게 제거됨
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
+// TEMP_DEBUG_RESET_BUTTON: 비활성화 상태. 다시 켜려면 true로.
+const DEBUG_RESET_BUTTON_ENABLED = false;
+
 const SPLASH_MIN_DURATION_MS = 2000;
 
 export default function Main() {
@@ -57,7 +60,7 @@ export default function Main() {
       {phase === 'survey' && <OnboardingFlow onComplete={completeOnboarding} startStep={3} />}
 
       {/* TEMP_DEBUG_RESET_BUTTON: 테스트용, 필요없어지면 이 블록만 삭제 */}
-      {phase === 'home' && (
+      {DEBUG_RESET_BUTTON_ENABLED && phase === 'home' && (
         <TouchableOpacity style={debugStyles.resetBtn} onPress={handleDebugResetToken}>
           <Text style={debugStyles.resetBtnText}>토큰 초기화</Text>
         </TouchableOpacity>
