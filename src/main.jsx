@@ -4,6 +4,7 @@ import AppRoutes from './routes';
 import OnboardingFlow from './features/onboarding/screens/OnboardingFlow';
 import SplashScreen from './features/onboarding/screens/SplashScreen';
 import { getAccessToken, isSurveyCompleted, clearAccessToken } from './shared/api/tokenStorage';
+import { setUnauthorizedHandler } from './shared/api/client';
 // TEMP_DEBUG_RESET_BUTTON: 아래 import, 버튼 JSX 블록, styles 전부 지우면 깔끔하게 제거됨
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
@@ -13,6 +14,12 @@ export default function Main() {
   // 'splash' → 'onboarding'(로그인 안 됨, 로그인부터) | 'survey'(로그인은 됐지만 설문 미완료, Welcome부터) | 'home'(둘 다 완료)
   const [phase, setPhase] = useState('splash');
   const [surveyData, setSurveyData] = useState(null);
+
+  // 토큰 만료/무효(401) 발생 시 어느 화면에서든 로그인 화면으로 되돌림 (client.js에서 호출)
+  useEffect(() => {
+    setUnauthorizedHandler(() => setPhase('onboarding'));
+    return () => setUnauthorizedHandler(null);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
