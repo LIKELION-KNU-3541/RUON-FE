@@ -37,6 +37,11 @@ export default function OnboardingFlow({ onComplete, startStep = 2 }) {
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
+  // 로그인 성공 시 설문 없이 바로 홈으로
+  const handleLoginSuccess = () => {
+    onComplete?.(surveyData);
+  };
+
   const handleSurveyComplete = async () => {
     setIsSubmitting(true);
     try {
@@ -88,7 +93,7 @@ export default function OnboardingFlow({ onComplete, startStep = 2 }) {
       )}
 
       <View className="flex-1">
-        {currentStep === 2 && <LoginScreen onNext={nextStep} />}
+        {currentStep === 2 && <LoginScreen onNext={handleLoginSuccess} />}
         {currentStep === 3 && <WelcomeScreen onNext={nextStep} />}
         {currentStep === 4 && (
           <SurveyConditionScreen
