@@ -1,7 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 
 const ACCESS_TOKEN_KEY = 'ruon_access_token';
-const SURVEY_COMPLETED_KEY = 'ruon_survey_completed';
 const SAVED_LOGIN_EMAIL_KEY = 'ruon_saved_login_email';
 const REMEMBERED_ID_KEY = 'ruon_remembered_id';
 
@@ -27,16 +26,6 @@ export async function getSavedLoginEmail() {
 
 export async function clearSavedLoginEmail() {
   await SecureStore.deleteItemAsync(SAVED_LOGIN_EMAIL_KEY);
-}
-
-// 설문조사를 최초 1회만 받기 위한 로컬 완료 플래그
-// TODO: 백엔드에 설문 완료 여부를 조회할 방법이 생기면(GET /users/me 등) 그쪽 값을 기준으로 교체
-export async function saveSurveyCompleted() {
-  await SecureStore.setItemAsync(SURVEY_COMPLETED_KEY, '1');
-}
-
-export async function isSurveyCompleted() {
-  return (await SecureStore.getItemAsync(SURVEY_COMPLETED_KEY)) === '1';
 }
 
 // 로그인 화면 "아이디 저장" 체크박스용
